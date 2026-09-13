@@ -2,6 +2,7 @@
 // correctly on theme switch. Options are plain objects (typed loosely).
 
 import type { Palette } from './palette'
+import { eng, engAxis } from './format'
 
 type AnyOpt = Record<string, any>
 
@@ -12,6 +13,14 @@ function axisStyle(p: Palette, log = false): AnyOpt {
     axisTick: { lineStyle: { color: p.baseline } },
     axisLabel: { color: p.text3, fontSize: 11, hideOverlap: true },
     splitLine: { show: true, lineStyle: { color: p.grid } },
+  }
+}
+
+function pointerLabel(formatter: (v: number) => string): AnyOpt {
+  return {
+    label: {
+      formatter: (params: any) => formatter(Number(params?.value)),
+    },
   }
 }
 
@@ -37,6 +46,22 @@ function grid(): AnyOpt {
   return { left: 60, right: 18, top: 28, bottom: 38 }
 }
 
+function degreeTick(v: number): string {
+  if (!Number.isFinite(v)) return v === -Infinity ? '-∞°' : '∞°'
+  const text = v.toFixed(2).replace(/\.0+$|(?<=\.[0-9])0$/, '').replace(/\.$/, '')
+  return `${text}°`
+}
+
+function zoomSlider(p: Palette): AnyOpt {
+  return {
+    type: 'slider', xAxisIndex: 0, height: 14, bottom: 6,
+    borderColor: p.border, fillerColor: 'rgba(36, 86, 166, 0.08)',
+    handleStyle: { color: p.surface, borderColor: p.baseline },
+    textStyle: { color: p.text3, fontSize: 10 },
+    labelFormatter: (value: number) => engAxis(value),
+  }
+}
+
 export interface LineSeries {
   name: string
   data: [number, number][]     // [x, y]
@@ -55,6 +80,8 @@ export function waveformOpt(p: Palette, opts: {
   yFormatter?: (v: number) => string
 }): AnyOpt {
   const multi = opts.series.length > 1
+  const xFmt = opts.xFormatter ?? ((v: number) => engAxis(v))
+  const yFmt = opts.yFormatter ?? ((v: number) => engAxis(v))
   return {
     animation: false,
     grid: grid(),
@@ -63,20 +90,22 @@ export function waveformOpt(p: Palette, opts: {
       : { show: false },
     tooltip: {
       ...tooltip(p, 'axis'),
-      valueFormatter: (v: any) => (typeof v === 'number' ? v.toPrecision(4) : v),
+      valueFormatter: (v: any) => (typeof v === 'number' ? engAxis(v) : v),
     },
     xAxis: {
       ...axisStyle(p),
       name: opts.xLabel, nameLocation: 'middle', nameGap: 26,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => opts.xFormatter ? opts.xFormatter(v) : v },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: xFmt },
+      axisPointer: pointerLabel(xFmt),
     },
     yAxis: {
       ...axisStyle(p),
       name: opts.yLabel, nameLocation: 'middle', nameGap: 44,
       nameTextStyle: { color: p.text3, fontSize: 11 },
       scale: true,
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => opts.yFormatter ? opts.yFormatter(v) : v },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: yFmt },
+      axisPointer: pointerLabel(yFmt),
     },
     series: opts.series.map((s) => {
       const isScatter = s.kind === 'scatter'
@@ -110,19 +139,24 @@ export function spectrumOpt(p: Palette, opts: {
     legend: opts.series.length > 1
       ? { show: true, textStyle: { color: p.text2, fontSize: 11 }, top: 0, itemWidth: 14, itemHeight: 3, icon: 'roundRect' }
       : { show: false },
-    tooltip: tooltip(p, 'axis'),
+    tooltip: {
+      ...tooltip(p, 'axis'),
+      valueFormatter: (v: any) => (typeof v === 'number' ? engAxis(v) : v),
+    },
     xAxis: {
       ...axisStyle(p, true),
       min: minF,
       name: opts.xLabel || '频率 (Hz)', nameLocation: 'middle', nameGap: 26,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) + 'Hz' },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
     },
     yAxis: {
       ...axisStyle(p),
       name: opts.yLabel || '幅值', nameLocation: 'middle', nameGap: 44,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
     },
     series: opts.series.map((s) => {
       const data = s.freqs.map((f, i) => [f, s.mag[i]]) as [number, number][]
@@ -194,34 +228,35 @@ export function bodeOpt(p: Palette, opts: {
     })
   }
   const minF = Math.min(...measData.map((d) => d[0]).filter((f) => f > 0), 1)
+  const yFmt = opts.mode === 'phase' ? degreeTick : (v: number) => engAxis(v)
   const base: AnyOpt = {
     animation: false,
     grid: grid(),
     legend: { show: true, textStyle: { color: p.text2, fontSize: 11 }, top: 0, itemWidth: 14, itemHeight: 3, icon: 'roundRect' },
-    tooltip: tooltip(p, 'axis'),
+    tooltip: {
+      ...tooltip(p, 'axis'),
+      valueFormatter: (v: any) => typeof v === 'number' ? yFmt(v) : v,
+    },
     xAxis: {
       ...axisStyle(p, true), min: minF,
       name: '频率 (Hz)', nameLocation: 'middle', nameGap: 26,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) + 'Hz' },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
     },
     yAxis: {
       ...axisStyle(p), name: opts.yLabel, nameLocation: 'middle', nameGap: 48,
       nameTextStyle: { color: p.text3, fontSize: 11 },
       scale: true,
-      axisLabel: opts.mode === 'phase'
-        ? { ...axisStyle(p).axisLabel, formatter: (v: number) => v.toFixed(0) + '°' }
-        : { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) + 'Ω' },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: yFmt },
+      axisPointer: pointerLabel(yFmt),
     },
     series,
   }
   if (opts.zoom) {
     base.dataZoom = [
       { type: 'inside', xAxisIndex: 0 },
-      { type: 'slider', xAxisIndex: 0, height: 14, bottom: 6,
-        borderColor: p.border, fillerColor: 'rgba(36, 86, 166, 0.08)',
-        handleStyle: { color: p.surface, borderColor: p.baseline },
-        textStyle: { color: p.text3, fontSize: 10 } },
+      zoomSlider(p),
     ]
     base.grid = { left: 60, right: 18, top: 28, bottom: 56 }
   }
@@ -232,8 +267,11 @@ export function nyquistOpt(p: Palette, opts: {
   measured: { re: number; im: number }[]
   theory?: { re: number[]; im: number[] }
   zoom?: boolean
+  xLabel?: string
+  yLabel?: string
 }): AnyOpt {
-  // plot -Im(Z) on y (electrochemistry convention) so capacitive (Im<0) is upper half
+  // Plot -Im on y (electrochemistry convention) so capacitive Z (Im<0) is upper half.
+  // Labels are configurable because this builder is also used for dimensionless H.
   const measData = opts.measured.map((m) => [m.re, -m.im]) as [number, number][]
   const series: AnyOpt[] = [
     {
@@ -253,17 +291,22 @@ export function nyquistOpt(p: Palette, opts: {
     animation: false,
     grid: { left: 60, right: 18, top: 28, bottom: 38 },
     legend: { show: true, textStyle: { color: p.text2, fontSize: 11 }, top: 0, itemWidth: 14, itemHeight: 3, icon: 'roundRect' },
-    tooltip: tooltip(p, 'axis'),
+    tooltip: {
+      ...tooltip(p, 'axis'),
+      valueFormatter: (v: any) => (typeof v === 'number' ? engAxis(v) : v),
+    },
     xAxis: {
-      ...axisStyle(p), name: 'Re(Z) (Ω)', nameLocation: 'middle', nameGap: 28,
+      ...axisStyle(p), name: opts.xLabel ?? 'Re(Z) (Ω)', nameLocation: 'middle', nameGap: 28,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
       scale: true,
     },
     yAxis: {
-      ...axisStyle(p), name: '−Im(Z) (Ω)', nameLocation: 'middle', nameGap: 44,
+      ...axisStyle(p), name: opts.yLabel ?? '−Im(Z) (Ω)', nameLocation: 'middle', nameGap: 44,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
       scale: true,
     },
     series,
@@ -271,10 +314,7 @@ export function nyquistOpt(p: Palette, opts: {
   if (opts.zoom) {
     base.dataZoom = [
       { type: 'inside', xAxisIndex: 0 }, { type: 'inside', yAxisIndex: 0 },
-      { type: 'slider', xAxisIndex: 0, height: 14, bottom: 6,
-        borderColor: p.border, fillerColor: 'rgba(36, 86, 166, 0.08)',
-        handleStyle: { color: p.surface, borderColor: p.baseline },
-        textStyle: { color: p.text3, fontSize: 10 } },
+      zoomSlider(p),
     ]
     base.grid = { left: 60, right: 18, top: 28, bottom: 56 }
   }
@@ -302,18 +342,23 @@ export function poleZeroOpt(p: Palette, opts: {
         { name: '零点 ○', icon: 'circle' },
       ],
     },
-    tooltip: tooltip(p, 'item'),
+    tooltip: {
+      ...tooltip(p, 'item'),
+      valueFormatter: (v: any) => (typeof v === 'number' ? engAxis(v) : v),
+    },
     xAxis: {
       ...axisStyle(p), min: -rx, max: rx,
       name: 'Re(s) (rad/s)', nameLocation: 'middle', nameGap: 28,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
     },
     yAxis: {
       ...axisStyle(p), min: -ry, max: ry,
       name: 'Im(s) (rad/s)', nameLocation: 'middle', nameGap: 44,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
     },
     series: [
       {
@@ -373,17 +418,22 @@ export function residualsOpt(p: Palette, opts: {
     animation: false,
     grid: grid(),
     legend: { show: true, textStyle: { color: p.text2, fontSize: 11 }, top: 0, itemWidth: 14, itemHeight: 3, icon: 'roundRect' },
-    tooltip: tooltip(p, 'axis'),
+    tooltip: {
+      ...tooltip(p, 'axis'),
+      valueFormatter: (v: any) => (typeof v === 'number' ? engAxis(v) : v),
+    },
     xAxis: {
       ...axisStyle(p, true), min: minF,
       name: '频率 (Hz)', nameLocation: 'middle', nameGap: 26,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) + 'Hz' },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
     },
     yAxis: {
       ...axisStyle(p), name: '残差 (Ω)', nameLocation: 'middle', nameGap: 48,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
     },
     series,
   }
@@ -393,17 +443,19 @@ export function complexPointOpt(p: Palette, z: { re: number; im: number }): AnyO
   return {
     animation: false,
     grid: { left: 50, right: 18, top: 16, bottom: 30 },
-    tooltip: { ...tooltip(p, 'item'), formatter: () => `Re=${z.re.toPrecision(4)} Ω<br/>Im=${z.im.toPrecision(4)} Ω` },
+    tooltip: { ...tooltip(p, 'item'), formatter: () => `Re=${eng(z.re, 'Ω', 5)}<br/>Im=${eng(z.im, 'Ω', 5)}` },
     xAxis: {
       ...axisStyle(p), name: 'Re (Ω)', nameLocation: 'middle', nameGap: 24,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
       scale: true,
     },
     yAxis: {
       ...axisStyle(p), name: 'Im (Ω)', nameLocation: 'middle', nameGap: 36,
       nameTextStyle: { color: p.text3, fontSize: 11 },
-      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => fmtEng(v) },
+      axisLabel: { ...axisStyle(p).axisLabel, formatter: (v: number) => engAxis(v) },
+      axisPointer: pointerLabel((v) => engAxis(v)),
       scale: true,
     },
     series: [
@@ -418,20 +470,4 @@ export function complexPointOpt(p: Palette, z: { re: number; im: number }): AnyO
       },
     ],
   }
-}
-
-// ---- small local formatter (avoids importing format.ts into option hot path) ----
-const ENG: [number, string][] = [
-  [1e9, 'G'], [1e6, 'M'], [1e3, 'k'], [1, ''],
-  [1e-3, 'm'], [1e-6, 'µ'], [1e-9, 'n'], [1e-12, 'p'],
-]
-function fmtEng(x: number): string {
-  if (!Number.isFinite(x)) return '∞'
-  if (x === 0) return '0'
-  const sign = x < 0 ? '-' : ''
-  const a = Math.abs(x)
-  for (const [f, pfx] of ENG) {
-    if (a >= f) return sign + (x / f).toPrecision(2).replace(/\.?0+$/, '') + (pfx ? pfx : '')
-  }
-  return x.toExponential(1)
 }
