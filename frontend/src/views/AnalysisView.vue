@@ -64,7 +64,7 @@ const vOpt = computed(() => {
       { name: '正弦拟合', data: zip(tMs.value, md.value.fitted_voltage), color: p.value.series[0], kind: 'line', markLine: dcMark(md.value.v_dc) },
     ],
     xLabel: '时间 (ms)', yLabel: 'u (V)',
-    yFormatter: (v) => fmt.fmt(v, 3),
+    yFormatter: (v) => fmt.engAxis(v),
   })
 })
 const iOpt = computed(() => {
@@ -75,7 +75,7 @@ const iOpt = computed(() => {
       { name: '正弦拟合', data: zip(tMs.value, md.value.fitted_current), color: p.value.series[1], kind: 'line', markLine: dcMark(md.value.i_dc) },
     ],
     xLabel: '时间 (ms)', yLabel: 'i (A)',
-    yFormatter: (v) => fmt.fmt(v, 3),
+    yFormatter: (v) => fmt.engAxis(v),
   })
 })
 const normOpt = computed(() => {
@@ -105,14 +105,14 @@ const residVOpt = computed(() => {
   if (!md.value) return {}
   return waveformOpt(p.value, {
     series: [{ name: 'u 残差', data: zip(tMs.value, md.value.resid_v), color: p.value.series[0], kind: 'line', width: 1, markLine: zeroMark() }],
-    xLabel: '时间 (ms)', yLabel: 'Δu (V)', yFormatter: (v) => fmt.fmt(v, 2),
+    xLabel: '时间 (ms)', yLabel: 'Δu (V)', yFormatter: (v) => fmt.engAxis(v),
   })
 })
 const residIOpt = computed(() => {
   if (!md.value) return {}
   return waveformOpt(p.value, {
     series: [{ name: 'i 残差', data: zip(tMs.value, md.value.resid_i), color: p.value.series[1], kind: 'line', width: 1, markLine: zeroMark() }],
-    xLabel: '时间 (ms)', yLabel: 'Δi (A)', yFormatter: (v) => fmt.fmt(v, 2),
+    xLabel: '时间 (ms)', yLabel: 'Δi (A)', yFormatter: (v) => fmt.engAxis(v),
   })
 })
 
@@ -190,14 +190,14 @@ const cpOpt = computed(() => {
           </div>
         </template>
         <div class="stat-grid cols-4" style="margin-bottom:14px">
-          <StatTile k="u 幅值" :v="fmt.fmt(md?.v_amp, 4)" unit="V" />
+          <StatTile k="u 幅值" :v="fmt.eng(md?.v_amp, 'V', 4)" />
           <StatTile k="u 相位" :v="fmt.degFromDeg(md?.v_phase_deg)" />
-          <StatTile k="i 幅值" :v="fmt.fmt(md?.i_amp, 4)" unit="A" />
+          <StatTile k="i 幅值" :v="fmt.eng(md?.i_amp, 'A', 4)" />
           <StatTile k="i 相位" :v="fmt.degFromDeg(md?.i_phase_deg)" />
-          <StatTile k="u 直流偏置" :v="fmt.fmt(md?.v_dc, 3)" unit="V" sub="拟合自动扣除" />
-          <StatTile k="i 直流偏置" :v="fmt.fmt(md?.i_dc, 3)" unit="A" />
+          <StatTile k="u 直流偏置" :v="fmt.eng(md?.v_dc, 'V', 4)" sub="拟合自动扣除" />
+          <StatTile k="i 直流偏置" :v="fmt.eng(md?.i_dc, 'A', 4)" />
           <StatTile k="∠Z = φu−φi" :v="fmt.degFromDeg(cur?.z_phase_deg)" accent />
-          <StatTile k="u 残差 RMS" :v="fmt.fmt(md?.resid_rms_v, 3)" unit="V" />
+          <StatTile k="u 残差 RMS" :v="fmt.eng(md?.resid_rms_v, 'V', 4)" />
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <FigBlock no="Fig. 1a" title="电压 u(t)" unit="原始采样点 + 正弦拟合">
@@ -219,8 +219,8 @@ const cpOpt = computed(() => {
             <div style="margin-top:6px"><Latex tex="\mathrm{SNR}_{\mathrm{dB}}=20\log_{10}(A/\sigma_r)" /></div>
           </div>
           <div class="stat-grid cols-2" style="margin-top:14px">
-            <StatTile k="u 残差 RMS" :v="fmt.fmt(md?.resid_rms_v, 3)" unit="V" />
-            <StatTile k="i 残差 RMS" :v="fmt.fmt(md?.resid_rms_i, 3)" unit="A" />
+            <StatTile k="u 残差 RMS" :v="fmt.eng(md?.resid_rms_v, 'V', 4)" />
+            <StatTile k="i 残差 RMS" :v="fmt.eng(md?.resid_rms_i, 'A', 4)" />
             <StatTile k="u 信噪比" :v="snrV.toFixed(1)" unit="dB" />
             <StatTile k="i 信噪比" :v="snrI.toFixed(1)" unit="dB" />
           </div>
@@ -264,15 +264,15 @@ const cpOpt = computed(() => {
             <div style="margin-top:6px"><Latex tex="X<0:\,C=-\tfrac{1}{\omega X}\quad X>0:\,L=\tfrac{X}{\omega}" /></div>
           </div>
           <div class="stat-grid cols-2" style="margin-top:14px">
-            <StatTile k="|Z|" :v="fmt.fmt(cur?.z_mag, 4)" unit="Ω" accent />
+            <StatTile k="|Z|" :v="fmt.eng(cur?.z_mag, 'Ω', 4)" accent />
             <StatTile k="∠Z" :v="fmt.degFromDeg(cur?.z_phase_deg)" accent />
-            <StatTile k="R = Re" :v="fmt.fmt(cur?.R, 4)" unit="Ω" />
-            <StatTile k="X = Im" :v="fmt.fmt(cur?.X, 4)" unit="Ω" />
-            <StatTile k="D 损耗因数" :v="fmt.fmt(cur?.D, 3)" />
-            <StatTile k="Q 品质因数" :v="fmt.fmt(cur?.Q, 3)" />
-            <StatTile k="ESR" :v="fmt.fmt(cur?.esr, 4)" unit="Ω" />
+            <StatTile k="R = Re" :v="fmt.eng(cur?.R, 'Ω', 4)" />
+            <StatTile k="X = Im" :v="fmt.eng(cur?.X, 'Ω', 4)" />
+            <StatTile k="D 损耗因数" :v="fmt.fmt(cur?.D, 4)" />
+            <StatTile k="Q 品质因数" :v="fmt.fmt(cur?.Q, 4)" />
+            <StatTile k="ESR" :v="fmt.eng(cur?.esr, 'Ω', 4)" />
             <StatTile k="等效 C / L" :v="cur?.C_eq ? fmt.eng(cur.C_eq,'F') : (cur?.L_eq ? fmt.eng(cur.L_eq,'H') : '—')" />
-            <StatTile k="σ|Z| 不确定度" :v="fmt.fmt(cur?.z_sigma, 2)" unit="Ω" sub="1σ，由双通道残差传播" />
+            <StatTile k="σ|Z| 不确定度" :v="fmt.eng(cur?.z_sigma, 'Ω', 3)" sub="1σ，由双通道残差传播" />
             <StatTile k="σ∠Z" :v="fmt.degFromDeg(cur?.z_phase_sigma_deg)" sub="1σ" />
           </div>
           <div style="margin-top:12px"><span class="badge" :class="cur && cur.X<0 ? 'good' : (cur && cur.X>0 ? 'warn':'')">{{ typeTag }}</span></div>

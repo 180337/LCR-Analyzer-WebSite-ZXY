@@ -120,6 +120,8 @@ const hNyqOpt = computed(() => {
   if (!r) return null
   return nyquistOpt(p.value, {
     measured: r.points.map((q) => ({ re: q.re, im: q.im })),
+    xLabel: 'Re(H)',
+    yLabel: '−Im(H)',
     zoom: true,
   })
 })

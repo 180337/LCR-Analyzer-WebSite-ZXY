@@ -79,7 +79,7 @@ const magOpt = computed(() => bodeOpt(p.value, { mode: 'mag', measured: points.v
         <div class="stat-grid cols-4">
           <StatTile k="已接收点数" :v="points.length" />
           <StatTile k="最新频率" :v="last ? fmt.fmtHz(last.f) : '—'" accent />
-          <StatTile k="最新 |Z|" :v="last ? fmt.fmt(last.mag, 4) + ' Ω' : '—'" />
+          <StatTile k="最新 |Z|" :v="last ? fmt.eng(last.mag, 'Ω', 4) : '—'" />
           <StatTile k="最新 ∠Z" :v="last ? fmt.degFromDeg(last.phase) : '—'" />
         </div>
       </div>

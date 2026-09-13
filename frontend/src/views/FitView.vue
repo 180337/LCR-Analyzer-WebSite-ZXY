@@ -4,7 +4,7 @@
 // 数据流：CSV 上传 / 示例生成 / 历史扫描导入 → ZPoint[]（本地）→ Web
 // Worker 内执行共享 v4 C++ / WASM 核心。
 // → Top-K 候选表 + 电路图（SP 树走 Schematic，非 SP 走 GraphSchematic）
-// + 测量-理论叠加图。完全不经过 Python 后端；ESP32 蓝牙导入为规划项。
+// + 测量-理论叠加图。完全不经过 Python 拟合后端；ESP32 BLE 与文件上传汇合到同一 ZPoint[] 链路。
 import { computed, reactive, ref, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useScanStore } from '../store/scan'
@@ -501,9 +501,14 @@ const fitNyqOpt = computed(() =>
 )
 
 function errText(v: number): string {
-  if (!Number.isFinite(v)) return '∞'
-  if (v < 1e-12) return '<1e-12'
-  return v.toExponential(1)
+  if (!Number.isFinite(v)) return v === -Infinity ? '-∞' : '∞'
+  if (v === 0) return '0'
+  if (Math.abs(v) < 1e-12) return v < 0 ? '>−1p' : '<1p'
+  return fmt.fmt(v, 3)
+}
+
+function valueUnit(kind: string): string {
+  return kind === 'R' ? 'Ω' : kind === 'C' ? 'F' : 'H'
 }
 </script>
 
@@ -603,8 +608,8 @@ function errText(v: number): string {
           </div>
           <div class="stat-grid cols-4">
             <StatTile k="数据点" :v="stats!.n" />
-            <StatTile k="频率范围" :v="`${fmt.eng(stats!.fMin, 'Hz', 3)} – ${fmt.eng(stats!.fMax, 'Hz', 3)}`" />
-            <StatTile k="|Z| 范围" :v="`${fmt.eng(stats!.zMin, 'Ω', 3)} – ${fmt.eng(stats!.zMax, 'Ω', 3)}`" />
+            <StatTile k="频率范围" :v="`${fmt.eng(stats!.fMin, 'Hz', 4)} – ${fmt.eng(stats!.fMax, 'Hz', 4)}`" />
+            <StatTile k="|Z| 范围" :v="`${fmt.eng(stats!.zMin, 'Ω', 4)} – ${fmt.eng(stats!.zMax, 'Ω', 4)}`" />
             <StatTile k="数据来源" :v="dataSource.split('·')[0].trim()" :sub="dataSource" />
           </div>
           <div class="preview-grid">
@@ -616,14 +621,14 @@ function errText(v: number): string {
             <summary class="hint">前 5 行数据</summary>
             <table class="data">
               <thead>
-                <tr><th>#</th><th class="num">f (Hz)</th><th class="num">Re(Z) (Ω)</th><th class="num">Im(Z) (Ω)</th></tr>
+                <tr><th>#</th><th class="num">f</th><th class="num">Re(Z)</th><th class="num">Im(Z)</th></tr>
               </thead>
               <tbody>
                 <tr v-for="(z, i) in points.slice(0, 5)" :key="i">
                   <td>{{ i + 1 }}</td>
-                  <td class="num mono">{{ z.f.toPrecision(8) }}</td>
-                  <td class="num mono">{{ z.re.toPrecision(8) }}</td>
-                  <td class="num mono">{{ z.im.toPrecision(8) }}</td>
+                  <td class="num mono">{{ fmt.eng(z.f, 'Hz', 8) }}</td>
+                  <td class="num mono">{{ fmt.eng(z.re, 'Ω', 8) }}</td>
+                  <td class="num mono">{{ fmt.eng(z.im, 'Ω', 8) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -873,9 +878,9 @@ function errText(v: number): string {
                 <td class="num mono">{{ c.n_params }}</td>
                 <td class="num mono">{{ errText(c.wrmse) }}</td>
                 <td class="num mono">{{ errText(c.max_rel) }}</td>
-                <td class="num mono">{{ fmt.fmt(c.aicc, 2) }}</td>
+                <td class="num mono">{{ fmt.fmt(c.aicc, 4) }}</td>
                 <td class="num mono" :class="{ muted: qualifiedAicc && c.selection?.delta != null && c.selection.delta >= 2 }">
-                  <template v-if="qualifiedAicc && c.selection?.delta != null">{{ fmt.fmt(c.selection.delta, 2) }}</template>
+                  <template v-if="qualifiedAicc && c.selection?.delta != null">{{ fmt.fmt(c.selection.delta, 4) }}</template>
                   <template v-else>—</template>
                 </td>
                 <td v-if="tab === 'try2'">
@@ -968,7 +973,7 @@ function errText(v: number): string {
             Jacobian 秩 {{ activeDiag3.jac_rank }} / {{ activeCandidate?.n_params }}
           </span>
           <span class="qpill" :class="activeDiag3.jac_cond === null || activeDiag3.jac_cond > 1e6 ? 'warn' : ''">
-            条件数 {{ activeDiag3.jac_cond === null ? '不可用' : activeDiag3.jac_cond.toExponential(1) }}
+            条件数 {{ activeDiag3.jac_cond === null ? '不可用' : fmt.fmt(activeDiag3.jac_cond, 5) }}
           </span>
           <span class="qpill">多起点 {{ activeDiag3.n_starts_used }} 次</span>
           <Network style="width: 14px; height: 14px; color: var(--text-3)" />
@@ -993,10 +998,10 @@ function errText(v: number): string {
                   {{
                     g.kind === 'R' ? fmt.eng(g.value.v1, 'Ω', 4)
                     : g.kind === 'C' ? fmt.eng(g.value.v1, 'F', 4)
-                    : `${fmt.eng(g.value.v1, 'H', 4)} + ${fmt.eng(g.value.v2, 'Ω', 3)} DCR`
+                    : `${fmt.eng(g.value.v1, 'H', 4)} + ${fmt.eng(g.value.v2, 'Ω', 4)} DCR`
                   }}
                   <span class="muted" style="font-size: 11px">
-                    （{{ g.kind === 'C' ? 'F' : 'Ω' }} 域 {{ fmt.eng(g.value_bounds?.lo ?? 0, '', 1) }}–{{ fmt.eng(g.value_bounds?.hi ?? 0, '', 1) }}<template v-if="g.dcr_bounds && g.kind === 'L'">；DCR 域 {{ fmt.eng(g.dcr_bounds.lo, 'Ω', 1) }}–{{ fmt.eng(g.dcr_bounds.hi, 'Ω', 1) }}</template>）
+                    （值域 {{ fmt.eng(g.value_bounds?.lo ?? 0, valueUnit(g.kind), 4) }}–{{ fmt.eng(g.value_bounds?.hi ?? 0, valueUnit(g.kind), 4) }}<template v-if="g.dcr_bounds && g.kind === 'L'">；DCR 域 {{ fmt.eng(g.dcr_bounds.lo, 'Ω', 4) }}–{{ fmt.eng(g.dcr_bounds.hi, 'Ω', 4) }}</template>）
                   </span>
                 </td>
                 <td class="mono muted">{{ g.members.map((m: number) => m + 1).join(', ') }}</td>
