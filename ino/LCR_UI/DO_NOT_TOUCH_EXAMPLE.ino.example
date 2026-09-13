@@ -102,6 +102,7 @@ static int lcr_measure_z_manual(double f_req, LcrZPoint *out) {
     if (f_act <= 0.0) return (f_act == -1.0) ? LCR_API_ERR_FREQ_OUT_OF_RANGE
                                              : LCR_API_ERR_FREQ_NO_FIT;
     g_sig_freq = f_act;
+    s_hc595_fsel_update();   // ★ 新硬件（v4）输出 1：频率选择随新频率立即切换
     s_mux_voltage_write((uint8_t)s_pin_v);
     g_voltage_range = (VoltageRange)s_pin_v;
     s_mux_current_write((uint8_t)s_pin_i);

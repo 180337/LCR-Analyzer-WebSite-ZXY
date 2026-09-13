@@ -49,25 +49,41 @@
 #define TIA_INVERTING 1
 #define LCR_RESISTIVE_TOL_DEG 1.0
 
-// ---- MUX 引脚（硬件 v3：2 片级联 74HC595）----
+// ---- MUX 引脚（硬件 v4：2 片级联 74HC595，16 个输出从近到远编号 0-15）----
+// ★ 2026-09 硬件重排（以硬件维护者提供的映射为准）：
+//   老输出 6,5,4,3,2,1 → 新 2,3,4,5,6,9；老 9,10,11,12 → 新 13,12,11,10；
+//   新输出 0,7,8,14,15 不使用；新输出 1 为新增频率选择控制（HC595_BIT_FSEL）。
+//   编号 k 与 shadow 寄存器 bit k 一一对应：SRCLK 共 16 个上升沿、bit15 先移入，
+//   最后移入的 bit0 落在最近一片 74HC595 的 Q0，故"从近到远第 k 个输出"= bit k。
 #define HC595_PIN_SRCLK 21
 #define HC595_PIN_SER 19
 #define HC595_PIN_RCLK 20
 
-#define HC595_BIT_W0 1
-#define HC595_BIT_W1 2
+// 双端口控制：老 W0(bit1)→新 9，老 W1(bit2)→新 6
+#define HC595_BIT_W0 9
+#define HC595_BIT_W1 6
 #define MUX_W_MASK ((1u << HC595_BIT_W0) | (1u << HC595_BIT_W1))
 
-#define HC595_BIT_T2 3
+// TIA 放大倍数 4 位：老 T2(bit3)→新 5，T1(bit4)→新 4，T0(bit5)→新 3，T3(bit6)→新 2
+#define HC595_BIT_T2 5
 #define HC595_BIT_T1 4
-#define HC595_BIT_T0 5
-#define HC595_BIT_T3 6
+#define HC595_BIT_T0 3
+#define HC595_BIT_T3 2
 
-#define HC595_BIT_I_LSB 9
-#define HC595_BIT_I_MSB 10
+// 电流放大倍数 2 位：老 I_LSB(bit9)→新 13，I_MSB(bit10)→新 12
+#define HC595_BIT_I_LSB 13
+#define HC595_BIT_I_MSB 12
 
+// 电压放大倍数 2 位：老 U_LSB(bit11)→新 11（不变），U_MSB(bit12)→新 10
 #define HC595_BIT_U_LSB 11
-#define HC595_BIT_U_MSB 12
+#define HC595_BIT_U_MSB 10
+
+// ★ 新增：频率选择控制（新硬件输出 1）。当前频率 > 100 Hz 时输出 0，
+//   否则（≤100Hz，含未输出时 g_sig_freq=0）输出 1。
+//   每次 595 锁存前按 g_sig_freq 自动重算（见 s_hc595_latch），
+//   频率变化处由 s_hc595_fsel_update() 立即刷新锁存。
+#define HC595_BIT_FSEL 1
+#define HC595_FSEL_FREQ_HZ 100.0
 
 #define MUX_I_MASK ((1u << HC595_BIT_I_MSB) | (1u << HC595_BIT_I_LSB))
 #define MUX_U_MASK ((1u << HC595_BIT_U_MSB) | (1u << HC595_BIT_U_LSB))
@@ -151,7 +167,12 @@ static double lcr_tia_ohm_of(TiaRange r) {
 
 // ================== 底层 MUX 写入（74HC595 级联） ==================
 static uint16_t s_hc595_shadow = 0x0000;
+// ★ 新硬件（v4）：每次锁存前把输出 1（FSEL）按当前 g_sig_freq 重算，
+//   保证任何 MUX 写入之后该位都与当前输出频率保持一致。
 static void s_hc595_latch() {
+  const uint16_t fsel_mask = (uint16_t)(1u << HC595_BIT_FSEL);
+  s_hc595_shadow = (uint16_t)((s_hc595_shadow & (uint16_t)~fsel_mask) |
+                              ((g_sig_freq > HC595_FSEL_FREQ_HZ) ? 0u : fsel_mask));
   digitalWrite(HC595_PIN_RCLK, LOW);
   for (int i = 15; i >= 0; i--) {
     digitalWrite(HC595_PIN_SRCLK, LOW);
@@ -162,6 +183,8 @@ static void s_hc595_latch() {
   digitalWrite(HC595_PIN_RCLK, HIGH);
   digitalWrite(HC595_PIN_RCLK, LOW);
 }
+// ★ 频率变化处（设置新频率 / 停止输出）调用：立即把输出 1 刷新到与新频率一致
+static void s_hc595_fsel_update() { s_hc595_latch(); }
 static void s_hc595_write(uint16_t mask, uint16_t bits) {
   s_hc595_shadow = (s_hc595_shadow & ~mask) | (bits & mask);
   s_hc595_latch();
@@ -627,11 +650,14 @@ static MeasResult lcr_measure_point(double f_req, bool verbose) {
   double f_act = out_freq(f_req, 20, 20);
   if (f_act > 0.0) {
     g_sig_freq = f_act;
+    // ★ 新硬件（v4）输出 1：频率选择立即随新频率切换（先于 settle 时窗）
+    s_hc595_fsel_update();
   } else {
     // ★ bugfix(问题2)：out_freq 失败（-1 频率越界 / -2 无拟合 / -3 缓冲未初始化）
     //   时激励已被 stop_sin() 停止，继续测量得到的数据与 f_req 无关。
     //   旧实现兜底 f_req 照常测量并上报"成功"，现直接中止本次测量。
     g_sig_freq = 0.0;
+    s_hc595_fsel_update();   // ★ 输出 1 回到 ≤100Hz 状态（g_sig_freq=0）
     Serial.printf("# ERR: out_freq(%.4g Hz) failed (code %d), measurement aborted\n",
                   f_req, (int)f_act);
     return s_invalid_meas_result(f_req);

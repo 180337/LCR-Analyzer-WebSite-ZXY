@@ -111,10 +111,12 @@ inline void lcr_api_reset() {
 }
 
 // ================== 2. 频率输出 ==================
+// ★ 新硬件（v4）：74HC595 输出 1 为频率选择控制（>100Hz=0，否则=1），
+//   g_sig_freq 变化后调用 s_hc595_fsel_update() 立即刷新锁存。
 inline double lcr_api_set_freq(double f) {
-    if (f <= 0.0) { stop_sin(); g_sig_freq = 0.0; return 0.0; }
+    if (f <= 0.0) { stop_sin(); g_sig_freq = 0.0; s_hc595_fsel_update(); return 0.0; }
     double fa = out_freq(f, 20, 20);
-    if (fa > 0.0) { g_sig_freq = fa; return fa; }
+    if (fa > 0.0) { g_sig_freq = fa; s_hc595_fsel_update(); return fa; }
     return (fa == -1.0) ? (double)LCR_API_ERR_FREQ_OUT_OF_RANGE
                         : (double)LCR_API_ERR_FREQ_NO_FIT;
 }
