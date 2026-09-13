@@ -66,7 +66,7 @@ X=
 ```math
 A=\sqrt{a^2+b^2},
 \qquad
-\phi=\operatorname{atan2}(b,a),
+\phi=\mathrm{atan2}(b,a),
 ```
 
 因此
@@ -235,7 +235,7 @@ G_{\mathrm{dB}}=20\log_{10}|H|,
 以及
 
 ```math
-\phi_H=\operatorname{atan2}(\Im H,\Re H).
+\phi_H=\mathrm{atan2}(\Im H,\Re H).
 ```
 
 当前 W 路径按元数据明确标记 `raw_w_path`，不把它伪装成已应用单端口校准的传递函数。
@@ -379,7 +379,7 @@ Z_{\mathrm{floor}}
 =
 \max\left(
 10^{-15},
-\operatorname{median}_k|Z_k^{\mathrm{obs}}|\cdot \texttt{relativeFloor}
+\mathrm{median}_k|Z_k^{\mathrm{obs}}|\cdot \texttt{relativeFloor}
 \right),
 ```
 
@@ -535,7 +535,7 @@ J\\
 默认多起点数为 16、每个起点最多 160 次 LM 迭代、随机种子为 1。宽区间拟合的尺度初值来自观测数据。令
 
 ```math
-Z_0=\max\left(10^{-9},\operatorname{median}_k|Z_k|\right),
+Z_0=\max\left(10^{-9},\mathrm{median}_k|Z_k|\right),
 \qquad
 \omega_0=2\pi\sqrt{f_{\min}f_{\max}},
 ```
@@ -557,7 +557,7 @@ Try1/Try3 的其它起点会在这些尺度附近做多数量级扰动；Try2-To
 若显式开启 robust，代码最多做 3 轮基于**白化复残差范数**的 Huber 型 IRLS。设第 $k$ 点残差范数为 $d_k$，当前截断值
 
 ```math
-c=\max\left(10^{-12},\,2.5\operatorname{median}_k d_k\right),
+c=\max\left(10^{-12},\,2.5\mathrm{median}_k d_k\right),
 ```
 
 则权重为
@@ -759,7 +759,7 @@ Jacobian / 边界 / 弱参数 / CI 诊断
 ```math
 J=U\Sigma V^T,
 \qquad
-\Sigma=\operatorname{diag}(\sigma_1,\ldots,\sigma_m),
+\Sigma=\mathrm{diag}(\sigma_1,\ldots,\sigma_m),
 \qquad
 \sigma_1\ge\cdots\ge\sigma_m\ge0.
 ```
