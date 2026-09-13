@@ -1,0 +1,70 @@
+name: fix README math rendering
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/fix-readme-math.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Rewrite GitHub-unsafe math macros and validate fences
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path("README.md")
+          s = p.read_text(encoding="utf-8")
+
+          # GitHub rejects \operatorname in README math.  Use plain roman
+          # function names, which are supported by GitHub's math renderer.
+          s = re.sub(r"\\operatorname\{([^{}]+)\}", r"\\mathrm{\1}", s)
+
+          if r"\operatorname" in s:
+              raise SystemExit("README still contains forbidden \\operatorname")
+
+          # Validate fenced display-math blocks.  Every ```math must close with
+          # a plain ``` fence before another fenced block starts.
+          in_math = False
+          for lineno, line in enumerate(s.splitlines(), 1):
+              stripped = line.strip()
+              if not in_math and stripped == "```math":
+                  in_math = True
+              elif in_math and stripped == "```":
+                  in_math = False
+              elif in_math and stripped.startswith("```"):
+                  raise SystemExit(f"nested/invalid fence at README.md:{lineno}")
+          if in_math:
+              raise SystemExit("unclosed ```math block in README.md")
+
+          p.write_text(s, encoding="utf-8")
+          PY
+
+          grep -n '\\operatorname' README.md && exit 1 || true
+
+      - name: Commit README fix and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/fix-readme-math.yml
+          git add README.md
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix GitHub-safe README math macros"
+          git push origin HEAD:main
