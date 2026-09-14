@@ -113,22 +113,27 @@ void ComponentScreen::onEnter()
     drawConfig();
 }
 
+void ComponentScreen::drawConfigField(int i)
+{
+    if (i < 0 || i > 1) return;
+    DigitEditor* eds[2] = {&m_f0, &m_f1};
+    const char* labels[2] = {"START Hz", "STOP Hz"};
+    const bool focused = (m_field == i);
+    const int y = kCfgY0 + i * kCfgDY;
+
+    tft.setTextFont(1);
+    tft.setTextColor(focused ? ui::C_ACCENT : ui::C_DIM, ui::C_BG);
+    tft.drawString(labels[i], kCfgX, y - 10);
+    const int ex = tft.width() - eds[i]->width(26) - 6;
+    eds[i]->draw(ex < 4 ? 4 : ex, y, 26, focused);
+}
+
 void ComponentScreen::drawConfig()
 {
     tft.fillScreen(ui::C_BG);
     ui::topBar("UNKNOWN ID", false);
-
-    DigitEditor* eds[2] = {&m_f0, &m_f1};
-    const char* labels[2] = {"START Hz", "STOP Hz"};
-    for (int i = 0; i < 2; ++i) {
-        const bool focused = (m_field == i);
-        const int y = kCfgY0 + i * kCfgDY;
-        tft.setTextFont(1);
-        tft.setTextColor(focused ? ui::C_ACCENT : ui::C_DIM, ui::C_BG);
-        tft.drawString(labels[i], kCfgX, y - 10);
-        const int ex = tft.width() - eds[i]->width(26) - 6;
-        eds[i]->draw(ex < 4 ? 4 : ex, y, 26, focused);
-    }
+    drawConfigField(0);
+    drawConfigField(1);
 
     if (millis() < m_errUntilMs) {
         tft.setTextFont(1);
@@ -359,9 +364,17 @@ void ComponentScreen::onEvent(InputEvent e)
     if (e == InputEvent::Back) { screens.pop(); return; }
 
     DigitEditor* eds[2] = {&m_f0, &m_f1};
-    if (!eds[m_field]->onEvent(e)) {
+    const int oldField = m_field;
+    const bool editorChanged = eds[m_field]->onEvent(e);
+    if (!editorChanged) {
         if (e == InputEvent::Down && m_field == 0) { m_field = 1; eds[1]->setCursor(0); }
         else if (e == InputEvent::Up && m_field == 1) { m_field = 0; eds[0]->setCursor(4); }
     }
-    drawConfig();
+
+    if (m_field != oldField) {
+        drawConfigField(oldField);
+        drawConfigField(m_field);
+    } else if (editorChanged) {
+        drawConfigField(m_field);
+    }
 }

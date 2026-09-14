@@ -67,8 +67,16 @@ void ui::progressBar(int x, int y, int w, int h, double frac, uint16_t color)
 {
     if (frac < 0) frac = 0;
     if (frac > 1) frac = 1;
+    const int innerW = w > 4 ? w - 4 : 0;
+    const int innerH = h > 4 ? h - 4 : 0;
+    const int filled = (int)(innerW * frac + 0.5);
     tft.drawRect(x, y, w, h, C_AXIS);
-    tft.fillRect(x + 2, y + 2, (int)((w - 4) * frac), h - 4, color);
+    if (innerW > 0 && innerH > 0) {
+        if (filled > 0)
+            tft.fillRect(x + 2, y + 2, filled, innerH, color);
+        if (filled < innerW)
+            tft.fillRect(x + 2 + filled, y + 2, innerW - filled, innerH, C_BG);
+    }
 }
 
 void ui::row(int x, int y, int w, const char* label, const char* value, uint16_t color)
@@ -135,11 +143,15 @@ bool DigitEditor::onEvent(InputEvent e)
         if (m_pos < m_ndigits - 1) { ++m_pos; return true; }
         return false;
     case InputEvent::EncInc:
-    case InputEvent::EncDec:
-        m_value = digitEditorStep(m_value, m_vmin, m_vmax, m_ndigits, m_pos,
-                                  e == InputEvent::EncInc ? 1 : -1);
+    case InputEvent::EncDec: {
+        const int32_t next = digitEditorStep(
+            m_value, m_vmin, m_vmax, m_ndigits, m_pos,
+            e == InputEvent::EncInc ? 1 : -1);
+        if (next == m_value) return false;
+        m_value = next;
         syncFromValue();
         return true;
+    }
     default:
         return false;
     }
@@ -171,10 +183,8 @@ void DigitEditor::draw(int x, int y, int fontH, bool focused) const
         char s[2] = {(char)('0' + m_digits[i]), 0};
         tft.drawString(s, dx, y);
 
-        if (focused && i == m_pos)
-            tft.fillRect(dx - 2, y + digitH + 4, dw + 4, 5, C_ACCENT);
-        else if (focused)
-            tft.fillRect(dx - 2, y + digitH + 4, dw + 4, 5, C_GRID);
+        const uint16_t underline = !focused ? C_BG : (i == m_pos ? C_ACCENT : C_GRID);
+        tft.fillRect(dx - 2, y + digitH + 4, dw + 4, 5, underline);
     }
 }
 
@@ -197,9 +207,10 @@ bool Checkbox::onEvent(InputEvent e)
 void Checkbox::draw(int x, int y, bool focused) const
 {
     const int box = 16;
-    if (focused) tft.drawRect(x - 2, y - 2, box + 4, box + 4, C_ACCENT);
+    tft.drawRect(x - 2, y - 2, box + 4, box + 4, focused ? C_ACCENT : C_BG);
     tft.drawRect(x, y, box, box, C_FG);
     if (m_value) tft.fillRect(x + 3, y + 3, box - 6, box - 6, C_OK);
+    else tft.fillRect(x + 3, y + 3, box - 6, box - 6, C_BG);
     tft.setTextFont(2);
     tft.setTextColor(focused ? C_FG : C_DIM, C_BG);
     tft.drawString(m_value ? m_labelOn : m_labelOff, x + box + 8, y);

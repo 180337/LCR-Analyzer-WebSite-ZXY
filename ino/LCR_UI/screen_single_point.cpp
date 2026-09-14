@@ -277,6 +277,8 @@ void SinglePointScreen::onEvent(InputEvent e)
 
     if (e == InputEvent::Ok) { startMeasure(); return; }
     if (e == InputEvent::Back) { screens.pop(); return; }
-    m_freq.onEvent(e);
-    drawConfig();
+    if (m_freq.onEvent(e)) {
+        const int x = (tft.width() - m_freq.width(26)) / 2;
+        m_freq.draw(x < 3 ? 3 : x, 52, 26, true);
+    }
 }
