@@ -11,6 +11,21 @@
 
 #define PIN_UNUSED (-1)
 
+// ---------------------------------------------------------------------------
+// 按键有效电平（编译期可配置）
+//   0：低电平按下，GPIO 使用内部上拉（默认；与现有实板接地按键一致）
+//   1：高电平按下，GPIO 使用内部下拉
+// 可在 Arduino/PlatformIO 编译参数中定义 -DLCR_BUTTON_ACTIVE_HIGH=1 覆盖默认值。
+// 编码器 A/B 相仍固定使用 INPUT_PULLUP；本宏只影响 4 个功能按键/ENC_SW。
+// ---------------------------------------------------------------------------
+#ifndef LCR_BUTTON_ACTIVE_HIGH
+#define LCR_BUTTON_ACTIVE_HIGH 0
+#endif
+
+#if (LCR_BUTTON_ACTIVE_HIGH != 0) && (LCR_BUTTON_ACTIVE_HIGH != 1)
+#error "LCR_BUTTON_ACTIVE_HIGH must be 0 (active-low) or 1 (active-high)"
+#endif
+
 struct BoardProfile {
     int tftCs;
     int tftDc;

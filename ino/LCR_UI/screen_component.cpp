@@ -19,10 +19,10 @@ constexpr int kCfgX = 6;
 constexpr int kCfgY0 = 32;
 constexpr int kCfgDY = 45;
 
-const char* engOrDash(double v, const char* unit, char* buf, int len)
+const char* engOrDash(double v, const char* unit, char* buf, int len, int prec = 3)
 {
     if (!isfinite(v)) { snprintf(buf, len, "--"); return buf; }
-    return ui::fmtEng(v, unit, buf, len, 3);
+    return ui::fmtEng(v, unit, buf, len, prec);
 }
 
 double pointRp(const AppZPoint& p, const AppCalcResult& c)
@@ -35,9 +35,12 @@ double pointRp(const AppZPoint& p, const AppCalcResult& c)
     return c.rp;
 }
 
+// 结果页同时还要容纳 UNKNOWN/ACTIVE 诊断，因此串/并联各保持一行；这里将
+// 元件值限制为 2 个有效数字，并省略 Rp/Rs 后重复的 Ohm 字样（Rp/Rs 语义本身
+// 已是电阻），使最坏工程前缀字符串也能装进 128px portrait 宽度。
 void drawEquivalents(const AppZPoint& p, const AppCalcResult& c, int y)
 {
-    char a[16], b[16], line[48];
+    char a[16], b[16], line[40];
     const bool calcOk = c.apiStatus == 0;
     const ImpedanceNature nature = classifyImpedanceNature(p);
     const double rp = calcOk ? pointRp(p, c) : NAN;
@@ -47,26 +50,26 @@ void drawEquivalents(const AppZPoint& p, const AppCalcResult& c, int y)
     tft.setTextColor(ui::C_FG, ui::C_BG);
     if (nature == ImpedanceNature::Capacitive) {
         snprintf(line, sizeof(line), "P Cp:%s Rp:%s",
-                 engOrDash(calcOk ? c.cp : NAN, "F", a, sizeof(a)),
-                 engOrDash(rp, "Ohm", b, sizeof(b)));
+                 engOrDash(calcOk ? c.cp : NAN, "F", a, sizeof(a), 2),
+                 engOrDash(rp, "", b, sizeof(b), 2));
         tft.drawString(line, 4, y);
         snprintf(line, sizeof(line), "S Cs:%s Rs:%s",
-                 engOrDash(calcOk ? c.cs : NAN, "F", a, sizeof(a)),
-                 engOrDash(rs, "Ohm", b, sizeof(b)));
+                 engOrDash(calcOk ? c.cs : NAN, "F", a, sizeof(a), 2),
+                 engOrDash(rs, "", b, sizeof(b), 2));
     } else if (nature == ImpedanceNature::Inductive) {
         snprintf(line, sizeof(line), "P Lp:%s Rp:%s",
-                 engOrDash(calcOk ? c.lp : NAN, "H", a, sizeof(a)),
-                 engOrDash(rp, "Ohm", b, sizeof(b)));
+                 engOrDash(calcOk ? c.lp : NAN, "H", a, sizeof(a), 2),
+                 engOrDash(rp, "", b, sizeof(b), 2));
         tft.drawString(line, 4, y);
         snprintf(line, sizeof(line), "S Ls:%s Rs:%s",
-                 engOrDash(calcOk ? c.ls : NAN, "H", a, sizeof(a)),
-                 engOrDash(rs, "Ohm", b, sizeof(b)));
+                 engOrDash(calcOk ? c.ls : NAN, "H", a, sizeof(a), 2),
+                 engOrDash(rs, "", b, sizeof(b), 2));
     } else {
         snprintf(line, sizeof(line), "P Xp:-- Rp:%s",
-                 engOrDash(rp, "Ohm", a, sizeof(a)));
+                 engOrDash(rp, "", a, sizeof(a), 2));
         tft.drawString(line, 4, y);
         snprintf(line, sizeof(line), "S Xs:-- Rs:%s",
-                 engOrDash(rs, "Ohm", a, sizeof(a)));
+                 engOrDash(rs, "", a, sizeof(a), 2));
     }
     tft.drawString(line, 4, y + 12);
 }
@@ -235,10 +238,11 @@ void ComponentScreen::drawResult()
     if (unknown) {
         tft.setTextFont(1);
         tft.setTextColor(ui::C_ERR, ui::C_BG);
-        snprintf(line, sizeof(line), "ERR:%s", m_est.reason);
+        // reason 来自固件内部枚举，但仍限制到 16 个 ASCII 字符，保证 128px 内。
+        snprintf(line, sizeof(line), "ERR:%.16s", m_est.reason);
         tft.drawString(line, 4, y); y += 12;
         tft.setTextColor(ui::C_DIM, ui::C_BG);
-        snprintf(line, sizeof(line), "MEAS %u/%u CALC %u MM %u",
+        snprintf(line, sizeof(line), "M %u/%u C%u MM%u",
                  m_est.nMeasured, m_nPlan, m_est.nCalcValid, m_est.nTypeMismatch);
         tft.drawString(line, 4, y); y += 12;
         snprintf(line, sizeof(line), "R/C/L %u/%u/%u",
@@ -247,7 +251,7 @@ void ComponentScreen::drawResult()
     } else if (active) {
         tft.setTextFont(1);
         tft.setTextColor(ui::C_ERR, ui::C_BG);
-        snprintf(line, sizeof(line), "%s neg=%u/%u", m_est.reason,
+        snprintf(line, sizeof(line), "%.10s neg=%u/%u", m_est.reason,
                  m_est.nNegativeReal, m_est.nMeasured);
         tft.drawString(line, 4, y); y += 12;
     }
@@ -274,7 +278,10 @@ void ComponentScreen::drawResult()
     drawEquivalents(p, c, y); y += 24;
     const double q = (c.apiStatus == 0 && isfinite(c.Q)) ? c.Q : p.Q;
     const double d = (c.apiStatus == 0 && isfinite(c.D)) ? c.D : p.D;
-    snprintf(line, sizeof(line), "Q:%.4g D:%.4g", q, d);
+    char qbuf[16], dbuf[16];
+    ui::fmtEng(q, "", qbuf, sizeof(qbuf), 3);
+    ui::fmtEng(d, "", dbuf, sizeof(dbuf), 3);
+    snprintf(line, sizeof(line), "Q:%s D:%s", qbuf, dbuf);
     tft.drawString(line, 4, y); y += 12;
     if (y <= 136) drawZ(p, y);
 
