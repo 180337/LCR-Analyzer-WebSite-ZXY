@@ -8,6 +8,7 @@
 
 #include "screens.h"
 #include "radio_lock.h"
+#include "ratio_format.h"
 
 #include <Arduino.h>
 #include <math.h>
@@ -242,16 +243,18 @@ void SinglePointScreen::drawResult()
 
     const double q = (m_calc.apiStatus == 0 && isfinite(m_calc.Q)) ? m_calc.Q : m_z.Q;
     const double d = (m_calc.apiStatus == 0 && isfinite(m_calc.D)) ? m_calc.D : m_z.D;
-    ui::fmtEng(q, "", a, sizeof(a), 3);
-    ui::fmtEng(d, "", b, sizeof(b), 3);
-    snprintf(line, sizeof(line), "Q:%s  D:%s", a, b);
+    ui::fmtRatio(q, a, sizeof(a));
+    ui::fmtRatio(d, b, sizeof(b));
+    snprintf(line, sizeof(line), "Q:%s", a);
     tft.drawString(line, 4, 108);
+    snprintf(line, sizeof(line), "D:%s", b);
+    tft.drawString(line, 4, 118);
     snprintf(line, sizeof(line), "phase:%+.3g deg", m_z.phaseDeg);
-    tft.drawString(line, 4, 120);
+    tft.drawString(line, 4, 128);
     if (m_calc.apiStatus != 0) {
         snprintf(line, sizeof(line), "calc status=%d", m_calc.apiStatus);
         tft.setTextColor(ui::C_ERR, ui::C_BG);
-        tft.drawString(line, 4, 132);
+        tft.drawString(line, 4, 138);
     }
     ui::bottomHint("OK:AGAIN BACK:CONFIG");
 }

@@ -377,8 +377,6 @@ const compErrors = computed(() => {
     if (r.kind === 'L') {
       const d = r.dcr.trim() === '' ? 0 : parseSI(r.dcr)
       if (d === null || d < 0) errs.push(`第 ${i + 1} 行：DCR 非法（需 ≥ 0）`)
-    } else if (r.dcr.trim() !== '') {
-      errs.push(`第 ${i + 1} 行：只有电感可填 DCR`)
     }
   }
   return errs
@@ -392,6 +390,16 @@ const compSummary = computed(() => {
 function addRow() {
   if (compRows.value.length >= 8) return
   compRows.value.push({ kind: 'R', value: '', dcr: '', count: '1' })
+}
+function onCompKindChange(r: CompRow) {
+  // DCR is part of the inductor model only.  Clearing it at the transition
+  // prevents a stale non-zero value from remaining visible in a disabled field
+  // after L -> R/C, while a newly selected L starts from an explicit zero.
+  if (r.kind === 'L') {
+    if (r.dcr.trim() === '') r.dcr = '0'
+  } else {
+    r.dcr = ''
+  }
 }
 function runTry2() {
   if (compErrors.value.length) return
@@ -765,15 +773,20 @@ function valueUnit(kind: string): string {
             <tr v-for="(r, i) in compRows" :key="i">
               <td>{{ i + 1 }}</td>
               <td>
-                <select v-model="r.kind" style="width: 70px">
+                <select v-model="r.kind" style="width: 70px" @change="onCompKindChange(r)">
                   <option value="R">R</option>
                   <option value="L">L</option>
                   <option value="C">C</option>
                 </select>
               </td>
               <td><input v-model="r.value" placeholder="如 1k / 100n / 1e-3" style="width: 150px" /></td>
-              <td><input v-model="r.dcr" :disabled="r.kind !== 'L'" placeholder="0" style="width: 110px" /></td>
-              <td><input v-model="r.count" type="number" min="1" max="8" style="width: 80px" /></td>
+              <td><input v-model="r.dcr" :disabled="r.kind !== 'L'" :placeholder="r.kind === 'L' ? '0' : '—'" style="width: 110px" /></td>
+              <td>
+                <label class="row tight" style="gap: 5px; flex-wrap: nowrap">
+                  <span class="hint" style="white-space: nowrap">个数</span>
+                  <input v-model="r.count" aria-label="个数" title="个数 1..8" type="number" min="1" max="8" style="width: 64px" />
+                </label>
+              </td>
               <td>
                 <button class="btn sm ghost" type="button" :disabled="compRows.length <= 1" @click="compRows.splice(i, 1)">删除</button>
               </td>

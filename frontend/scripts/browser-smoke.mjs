@@ -20,6 +20,10 @@ await page.locator('.cand-table').waitFor({timeout:120000});console.log('maxDept
 await page.getByRole('spinbutton',{name:'器件数上限 maxN（可选，1–12）'}).fill('');
 await page.getByRole('spinbutton',{name:'SP 深度 maxDepth（可选，1–12）'}).fill('');
 await page.getByText('Try 3 · 已知拓扑',{exact:true}).click();
+// 空拓扑首次进入时端口 0/1 必须立即存在，不能依赖“清空”按钮触发初始化。
+await page.getByText('端口0',{exact:true}).waitFor();
+await page.getByText('端口1',{exact:true}).waitFor();
+console.log('Try3 initial ports PASS');
 await page.locator('textarea').fill('0 2 R\n2 1 R\n0 3 C');
 await page.getByRole('button',{name:'运行 Try 3',exact:true}).click();
 await page.getByText('Try 3 拟合诊断',{exact:true}).waitFor();
@@ -28,6 +32,18 @@ await page.locator('textarea').fill('0 2 R');
 await page.getByRole('button',{name:'运行 Try 3',exact:true}).click();
 await page.getByText('端口开路：拓扑在 0–1 端口间不导通',{exact:false}).waitFor();console.log('port open PASS');
 await page.getByText('Try 2 · 已知元件',{exact:true}).click();
+// L -> R/C 必须清掉 DCR；否则输入框被禁用后会留下不可编辑的陈旧数值。
+const try2Table=page.getByRole('columnheader',{name:'DCR [Ω]（仅 L）'}).locator('xpath=ancestor::table');
+const firstCompRow=try2Table.locator('tbody tr').first();
+const firstKind=firstCompRow.locator('select');
+const firstInputs=firstCompRow.locator('input');
+await firstKind.selectOption('L');
+await firstInputs.nth(1).fill('12.3');
+await firstKind.selectOption('R');
+assert.equal(await firstInputs.nth(1).inputValue(),'');
+assert.ok(await firstInputs.nth(1).isDisabled());
+assert.match(await firstCompRow.innerText(),/个数/);
+console.log('Try2 DCR reset + count label PASS');
 await page.getByRole('button',{name:'删除',exact:true}).last().click();await page.getByRole('button',{name:'删除',exact:true}).last().click();
 await page.getByRole('button',{name:'运行 Try 2',exact:true}).click();
 await page.locator('.cand-table').waitFor();assert.match(await page.locator('body').innerText(),/有限候选空间最优已验证/);console.log('Try2 pure R PASS');
