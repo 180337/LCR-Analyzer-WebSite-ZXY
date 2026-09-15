@@ -8,6 +8,7 @@
 
 #include "screens.h"
 #include "radio_lock.h"
+#include "ratio_format.h"
 
 #include <Arduino.h>
 #include <math.h>
@@ -35,12 +36,12 @@ double pointRp(const AppZPoint& p, const AppCalcResult& c)
     return c.rp;
 }
 
-// 结果页同时还要容纳 UNKNOWN/ACTIVE 诊断，因此串/并联各保持一行；这里将
-// 元件值限制为 2 个有效数字，并省略 Rp/Rs 后重复的 Ohm 字样（Rp/Rs 语义本身
-// 已是电阻），使最坏工程前缀字符串也能装进 128px portrait 宽度。
+// 功能 1 也按 128x160 portrait 的真实宽度排版：串/并联模型各拆成
+// “电抗元件 + 电阻”两行，任何一行只承载一个动态数值。这样不依赖异常值
+// 恰好较短，工程前缀到 q/Q 也不会把相邻字段挤出 128 px 边界。
 void drawEquivalents(const AppZPoint& p, const AppCalcResult& c, int y)
 {
-    char a[16], b[16], line[40];
+    char a[20], line[32];
     const bool calcOk = c.apiStatus == 0;
     const ImpedanceNature nature = classifyImpedanceNature(p);
     const double rp = calcOk ? pointRp(p, c) : NAN;
@@ -49,29 +50,29 @@ void drawEquivalents(const AppZPoint& p, const AppCalcResult& c, int y)
     tft.setTextFont(1);
     tft.setTextColor(ui::C_FG, ui::C_BG);
     if (nature == ImpedanceNature::Capacitive) {
-        snprintf(line, sizeof(line), "P Cp:%s Rp:%s",
-                 engOrDash(calcOk ? c.cp : NAN, "F", a, sizeof(a), 2),
-                 engOrDash(rp, "", b, sizeof(b), 2));
+        snprintf(line, sizeof(line), "P Cp:%s", engOrDash(calcOk ? c.cp : NAN, "F", a, sizeof(a)));
         tft.drawString(line, 4, y);
-        snprintf(line, sizeof(line), "S Cs:%s Rs:%s",
-                 engOrDash(calcOk ? c.cs : NAN, "F", a, sizeof(a), 2),
-                 engOrDash(rs, "", b, sizeof(b), 2));
+        snprintf(line, sizeof(line), "  Rp:%s", engOrDash(rp, "Ohm", a, sizeof(a)));
+        tft.drawString(line, 4, y + 10);
+        snprintf(line, sizeof(line), "S Cs:%s", engOrDash(calcOk ? c.cs : NAN, "F", a, sizeof(a)));
+        tft.drawString(line, 4, y + 20);
+        snprintf(line, sizeof(line), "  Rs:%s", engOrDash(rs, "Ohm", a, sizeof(a)));
     } else if (nature == ImpedanceNature::Inductive) {
-        snprintf(line, sizeof(line), "P Lp:%s Rp:%s",
-                 engOrDash(calcOk ? c.lp : NAN, "H", a, sizeof(a), 2),
-                 engOrDash(rp, "", b, sizeof(b), 2));
+        snprintf(line, sizeof(line), "P Lp:%s", engOrDash(calcOk ? c.lp : NAN, "H", a, sizeof(a)));
         tft.drawString(line, 4, y);
-        snprintf(line, sizeof(line), "S Ls:%s Rs:%s",
-                 engOrDash(calcOk ? c.ls : NAN, "H", a, sizeof(a), 2),
-                 engOrDash(rs, "", b, sizeof(b), 2));
+        snprintf(line, sizeof(line), "  Rp:%s", engOrDash(rp, "Ohm", a, sizeof(a)));
+        tft.drawString(line, 4, y + 10);
+        snprintf(line, sizeof(line), "S Ls:%s", engOrDash(calcOk ? c.ls : NAN, "H", a, sizeof(a)));
+        tft.drawString(line, 4, y + 20);
+        snprintf(line, sizeof(line), "  Rs:%s", engOrDash(rs, "Ohm", a, sizeof(a)));
     } else {
-        snprintf(line, sizeof(line), "P Xp:-- Rp:%s",
-                 engOrDash(rp, "", a, sizeof(a), 2));
-        tft.drawString(line, 4, y);
-        snprintf(line, sizeof(line), "S Xs:-- Rs:%s",
-                 engOrDash(rs, "", a, sizeof(a), 2));
+        tft.drawString("P Xp:--", 4, y);
+        snprintf(line, sizeof(line), "  Rp:%s", engOrDash(rp, "Ohm", a, sizeof(a)));
+        tft.drawString(line, 4, y + 10);
+        tft.drawString("S Xs:--", 4, y + 20);
+        snprintf(line, sizeof(line), "  Rs:%s", engOrDash(rs, "Ohm", a, sizeof(a)));
     }
-    tft.drawString(line, 4, y + 12);
+    tft.drawString(line, 4, y + 30);
 }
 
 void initFailedSlot(AppZPoint& z, AppCalcResult& c, double f)
@@ -87,15 +88,20 @@ void initFailedSlot(AppZPoint& z, AppCalcResult& c, double f)
     c.apiStatus = -3;
 }
 
+// 复阻抗也拆成实部/虚部两行；每行最多一个工程计数法动态值，避免两项
+// 同时接近最长表示时越过右边界。
 void drawZ(const AppZPoint& p, int y)
 {
-    char r[16], i[16], line[48];
-    ui::fmtEng(p.reOhm, "", r, sizeof(r), 3);
-    ui::fmtEng(fabs(p.imOhm), "", i, sizeof(i), 3);
-    snprintf(line, sizeof(line), "Z:%s%cj%s Ohm", r, p.imOhm < 0 ? '-' : '+', i);
+    char v[20], line[32];
+    ui::fmtEng(p.reOhm, "Ohm", v, sizeof(v), 3);
+    snprintf(line, sizeof(line), "Zre:%s", v);
     tft.setTextFont(1);
     tft.setTextColor(ui::C_FG, ui::C_BG);
     tft.drawString(line, 4, y);
+
+    ui::fmtEng(fabs(p.imOhm), "Ohm", v, sizeof(v), 3);
+    snprintf(line, sizeof(line), "Zim:%c%s", p.imOhm < 0 ? '-' : '+', v);
+    tft.drawString(line, 4, y + 10);
 }
 
 }  // namespace
@@ -234,26 +240,26 @@ void ComponentScreen::drawResult()
     tft.drawCentreString(componentTypeText(m_est.type), tft.width() / 2, 20, 2);
 
     char line[64], fbuf[20];
-    int y = 42;
+    int y = 40;
     if (unknown) {
         tft.setTextFont(1);
         tft.setTextColor(ui::C_ERR, ui::C_BG);
         // reason 来自固件内部枚举，但仍限制到 16 个 ASCII 字符，保证 128px 内。
         snprintf(line, sizeof(line), "ERR:%.16s", m_est.reason);
-        tft.drawString(line, 4, y); y += 12;
+        tft.drawString(line, 4, y); y += 10;
         tft.setTextColor(ui::C_DIM, ui::C_BG);
         snprintf(line, sizeof(line), "M %u/%u C%u MM%u",
                  m_est.nMeasured, m_nPlan, m_est.nCalcValid, m_est.nTypeMismatch);
-        tft.drawString(line, 4, y); y += 12;
+        tft.drawString(line, 4, y); y += 10;
         snprintf(line, sizeof(line), "R/C/L %u/%u/%u",
                  m_est.nR, m_est.nC, m_est.nL);
-        tft.drawString(line, 4, y); y += 12;
+        tft.drawString(line, 4, y); y += 10;
     } else if (active) {
         tft.setTextFont(1);
         tft.setTextColor(ui::C_ERR, ui::C_BG);
         snprintf(line, sizeof(line), "%.10s neg=%u/%u", m_est.reason,
                  m_est.nNegativeReal, m_est.nMeasured);
-        tft.drawString(line, 4, y); y += 12;
+        tft.drawString(line, 4, y); y += 10;
     }
 
     const int idx = unknown || active ? m_est.detailIndex : m_est.representativeIndex;
@@ -272,23 +278,30 @@ void ComponentScreen::drawResult()
     snprintf(line, sizeof(line), "%s F:%s",
              unknown || active ? "DETAIL" : "REP",
              ui::fmtFreq(p.fAct, fbuf, sizeof(fbuf)));
-    tft.drawString(line, 4, y); y += 12;
-    tft.drawString(impedanceNatureText(classifyImpedanceNature(p)), 4, y); y += 12;
+    tft.drawString(line, 4, y); y += 10;
+    tft.drawString(impedanceNatureText(classifyImpedanceNature(p)), 4, y); y += 10;
 
-    drawEquivalents(p, c, y); y += 24;
+    drawEquivalents(p, c, y); y += 40;
     const double q = (c.apiStatus == 0 && isfinite(c.Q)) ? c.Q : p.Q;
     const double d = (c.apiStatus == 0 && isfinite(c.D)) ? c.D : p.D;
-    char qbuf[16], dbuf[16];
-    ui::fmtEng(q, "", qbuf, sizeof(qbuf), 3);
-    ui::fmtEng(d, "", dbuf, sizeof(dbuf), 3);
-    snprintf(line, sizeof(line), "Q:%s D:%s", qbuf, dbuf);
-    tft.drawString(line, 4, y); y += 12;
-    if (y <= 136) drawZ(p, y);
+    char qbuf[20], dbuf[20];
+    ui::fmtRatio(q, qbuf, sizeof(qbuf));
+    ui::fmtRatio(d, dbuf, sizeof(dbuf));
+    snprintf(line, sizeof(line), "Q:%s", qbuf);
+    tft.drawString(line, 4, y); y += 10;
+    snprintf(line, sizeof(line), "D:%s", dbuf);
+    tft.drawString(line, 4, y); y += 10;
 
-    if (c.apiStatus != 0 && y + 12 <= 144) {
+    // 实/虚部需要两行，只有两行都能落在 bottom hint 上方才绘制。
+    if (y <= 128) {
+        drawZ(p, y);
+        y += 20;
+    }
+
+    if (c.apiStatus != 0 && y <= 138) {
         snprintf(line, sizeof(line), "calc status=%d", c.apiStatus);
         tft.setTextColor(ui::C_ERR, ui::C_BG);
-        tft.drawString(line, 4, y + 12);
+        tft.drawString(line, 4, y);
     }
     ui::bottomHint("OK:AGAIN BACK:CONFIG");
 }
