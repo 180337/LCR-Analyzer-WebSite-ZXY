@@ -37,11 +37,11 @@ double pointRp(const AppZPoint& p, const AppCalcResult& c)
 }
 
 // 功能 1 也按 128x160 portrait 的真实宽度排版：串/并联模型各拆成
-// “电抗元件 + 电阻”两行，任何一行只承载一个动态数值。这样不依赖异常值
-// 恰好较短，工程前缀到 q/Q 也不会把相邻字段挤出 128 px 边界。
+// “电抗元件 + 电阻”两行，任何一行只承载一个动态数值。最终显示行再硬限制为
+// 20 个 font-1 字符（约 120 px），因此异常超大有限值也不会越过 128 px 边界。
 void drawEquivalents(const AppZPoint& p, const AppCalcResult& c, int y)
 {
-    char a[20], line[32];
+    char a[20], line[21];
     const bool calcOk = c.apiStatus == 0;
     const ImpedanceNature nature = classifyImpedanceNature(p);
     const double rp = calcOk ? pointRp(p, c) : NAN;
@@ -88,11 +88,10 @@ void initFailedSlot(AppZPoint& z, AppCalcResult& c, double f)
     c.apiStatus = -3;
 }
 
-// 复阻抗也拆成实部/虚部两行；每行最多一个工程计数法动态值，避免两项
-// 同时接近最长表示时越过右边界。
+// 复阻抗也拆成实部/虚部两行；最终行同样硬限制 20 个 font-1 字符。
 void drawZ(const AppZPoint& p, int y)
 {
-    char v[20], line[32];
+    char v[20], line[21];
     ui::fmtEng(p.reOhm, "Ohm", v, sizeof(v), 3);
     snprintf(line, sizeof(line), "Zre:%s", v);
     tft.setTextFont(1);
