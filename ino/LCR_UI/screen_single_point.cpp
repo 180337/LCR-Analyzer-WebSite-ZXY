@@ -33,9 +33,12 @@ double displayRp(const AppZPoint& p, const AppCalcResult& c)
     return c.rp;
 }
 
+// 128x160 portrait 上串/并联两组参数不能再塞进一行。每个等效模型固定两行：
+// 第一行电抗元件，第二行对应电阻；四行总高 40 px，既保留单位，也保证最坏
+// 情况下的工程前缀字符串不会越过左右边界。
 void drawEquivalent(const AppZPoint& p, const AppCalcResult& c, int y)
 {
-    char a[16], b[16], line[48];
+    char a[20], line[32];
     const bool calcOk = c.apiStatus == 0;
     const ImpedanceNature nature = classifyImpedanceNature(p);
     const double rp = calcOk ? displayRp(p, c) : NAN;
@@ -44,29 +47,29 @@ void drawEquivalent(const AppZPoint& p, const AppCalcResult& c, int y)
     tft.setTextFont(1);
     tft.setTextColor(ui::C_FG, ui::C_BG);
     if (nature == ImpedanceNature::Capacitive) {
-        snprintf(line, sizeof(line), "P Cp:%s Rp:%s",
-                 engOrDash(calcOk ? c.cp : NAN, "F", a, sizeof(a)),
-                 engOrDash(rp, "Ohm", b, sizeof(b)));
+        snprintf(line, sizeof(line), "P Cp:%s", engOrDash(calcOk ? c.cp : NAN, "F", a, sizeof(a)));
         tft.drawString(line, 4, y);
-        snprintf(line, sizeof(line), "S Cs:%s Rs:%s",
-                 engOrDash(calcOk ? c.cs : NAN, "F", a, sizeof(a)),
-                 engOrDash(rs, "Ohm", b, sizeof(b)));
+        snprintf(line, sizeof(line), "  Rp:%s", engOrDash(rp, "Ohm", a, sizeof(a)));
+        tft.drawString(line, 4, y + 10);
+        snprintf(line, sizeof(line), "S Cs:%s", engOrDash(calcOk ? c.cs : NAN, "F", a, sizeof(a)));
+        tft.drawString(line, 4, y + 20);
+        snprintf(line, sizeof(line), "  Rs:%s", engOrDash(rs, "Ohm", a, sizeof(a)));
     } else if (nature == ImpedanceNature::Inductive) {
-        snprintf(line, sizeof(line), "P Lp:%s Rp:%s",
-                 engOrDash(calcOk ? c.lp : NAN, "H", a, sizeof(a)),
-                 engOrDash(rp, "Ohm", b, sizeof(b)));
+        snprintf(line, sizeof(line), "P Lp:%s", engOrDash(calcOk ? c.lp : NAN, "H", a, sizeof(a)));
         tft.drawString(line, 4, y);
-        snprintf(line, sizeof(line), "S Ls:%s Rs:%s",
-                 engOrDash(calcOk ? c.ls : NAN, "H", a, sizeof(a)),
-                 engOrDash(rs, "Ohm", b, sizeof(b)));
+        snprintf(line, sizeof(line), "  Rp:%s", engOrDash(rp, "Ohm", a, sizeof(a)));
+        tft.drawString(line, 4, y + 10);
+        snprintf(line, sizeof(line), "S Ls:%s", engOrDash(calcOk ? c.ls : NAN, "H", a, sizeof(a)));
+        tft.drawString(line, 4, y + 20);
+        snprintf(line, sizeof(line), "  Rs:%s", engOrDash(rs, "Ohm", a, sizeof(a)));
     } else {
-        snprintf(line, sizeof(line), "P Xp:-- Rp:%s",
-                 engOrDash(rp, "Ohm", a, sizeof(a)));
-        tft.drawString(line, 4, y);
-        snprintf(line, sizeof(line), "S Xs:-- Rs:%s",
-                 engOrDash(rs, "Ohm", a, sizeof(a)));
+        tft.drawString("P Xp:--", 4, y);
+        snprintf(line, sizeof(line), "  Rp:%s", engOrDash(rp, "Ohm", a, sizeof(a)));
+        tft.drawString(line, 4, y + 10);
+        tft.drawString("S Xs:--", 4, y + 20);
+        snprintf(line, sizeof(line), "  Rs:%s", engOrDash(rs, "Ohm", a, sizeof(a)));
     }
-    tft.drawString(line, 4, y + 12);
+    tft.drawString(line, 4, y + 30);
 }
 
 void setFailedPoint(AppZPoint& z, AppCalcResult& c, double f, int status)
@@ -222,31 +225,33 @@ void SinglePointScreen::drawResult()
     tft.setTextFont(2);
     tft.setTextColor(nature == ImpedanceNature::NegativeResistive ? ui::C_ERR : ui::C_OK,
                      ui::C_BG);
-    tft.drawCentreString(impedanceNatureText(nature), tft.width() / 2, 22, 2);
+    tft.drawCentreString(impedanceNatureText(nature), tft.width() / 2, 20, 2);
 
-    char line[48], a[16], b[16], fbuf[20];
+    char line[48], a[20], b[20], fbuf[20];
     tft.setTextFont(1);
     tft.setTextColor(ui::C_FG, ui::C_BG);
     snprintf(line, sizeof(line), "F:%s", ui::fmtFreq(m_z.fAct, fbuf, sizeof(fbuf)));
-    tft.drawString(line, 4, 46);
+    tft.drawString(line, 4, 42);
 
     ui::fmtEng(m_z.reOhm, "", a, sizeof(a), 3);
     ui::fmtEng(fabs(m_z.imOhm), "", b, sizeof(b), 3);
     snprintf(line, sizeof(line), "Z:%s%cj%s Ohm", a, m_z.imOhm < 0 ? '-' : '+', b);
-    tft.drawString(line, 4, 58);
+    tft.drawString(line, 4, 54);
 
-    drawEquivalent(m_z, m_calc, 70);
+    drawEquivalent(m_z, m_calc, 66);
 
     const double q = (m_calc.apiStatus == 0 && isfinite(m_calc.Q)) ? m_calc.Q : m_z.Q;
     const double d = (m_calc.apiStatus == 0 && isfinite(m_calc.D)) ? m_calc.D : m_z.D;
-    snprintf(line, sizeof(line), "Q:%.4g  D:%.4g", q, d);
-    tft.drawString(line, 4, 98);
+    ui::fmtEng(q, "", a, sizeof(a), 3);
+    ui::fmtEng(d, "", b, sizeof(b), 3);
+    snprintf(line, sizeof(line), "Q:%s  D:%s", a, b);
+    tft.drawString(line, 4, 108);
     snprintf(line, sizeof(line), "phase:%+.3g deg", m_z.phaseDeg);
-    tft.drawString(line, 4, 110);
+    tft.drawString(line, 4, 120);
     if (m_calc.apiStatus != 0) {
         snprintf(line, sizeof(line), "calc status=%d", m_calc.apiStatus);
         tft.setTextColor(ui::C_ERR, ui::C_BG);
-        tft.drawString(line, 4, 122);
+        tft.drawString(line, 4, 132);
     }
     ui::bottomHint("OK:AGAIN BACK:CONFIG");
 }
@@ -277,6 +282,8 @@ void SinglePointScreen::onEvent(InputEvent e)
 
     if (e == InputEvent::Ok) { startMeasure(); return; }
     if (e == InputEvent::Back) { screens.pop(); return; }
-    m_freq.onEvent(e);
-    drawConfig();
+    if (m_freq.onEvent(e)) {
+        const int x = (tft.width() - m_freq.width(26)) / 2;
+        m_freq.draw(x < 3 ? 3 : x, 52, 26, true);
+    }
 }

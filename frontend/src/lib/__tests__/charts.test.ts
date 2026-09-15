@@ -16,6 +16,17 @@ describe('chart engineering labels', () => {
     expect(opt.xAxis.axisLabel.formatter(-1200)).not.toContain('--')
   })
 
+  it('keeps pico/femto prefixes on axis ticks, crosshairs and zoom labels', () => {
+    const opt = nyquistOpt(palette, {
+      measured: [{ re: 8.2e-12, im: -3.3e-15 }],
+      zoom: true,
+    })
+    expect(opt.xAxis.axisLabel.formatter(8.2e-12)).toBe('8.2p')
+    expect(opt.yAxis.axisLabel.formatter(3.3e-15)).toBe('3.3f')
+    expect(opt.xAxis.axisPointer.label.formatter({ value: 8.2e-12 })).toBe('8.2p')
+    expect(opt.dataZoom[2].labelFormatter(8.2e-12)).toBe('8.2p')
+  })
+
   it('does not hard-code ohms onto a generic Bode magnitude axis', () => {
     const opt = bodeOpt(palette, {
       mode: 'mag',

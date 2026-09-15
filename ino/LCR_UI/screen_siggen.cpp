@@ -198,6 +198,6 @@ void SigGenScreen::onEvent(InputEvent e)
         break;
     }
 
-    if (!m_running && !m_pending) m_freq.onEvent(e);   // 运行中不改频率
-    drawFreq();
+    if (!m_running && !m_pending && m_freq.onEvent(e))
+        drawFreq();
 }

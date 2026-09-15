@@ -11,8 +11,22 @@ describe('engineering-number formatting', () => {
     expect(fmtHz(1e6)).toBe('1 MHz')
   })
 
+  it('covers every engineering SI prefix from quecto through quetta', () => {
+    const cases: Array<[number, string]> = [
+      [1e-30, '1q'], [1e-27, '1r'], [1e-24, '1y'], [1e-21, '1z'],
+      [1e-18, '1a'], [1e-15, '1f'], [1e-12, '1p'], [1e-9, '1n'],
+      [1e-6, '1µ'], [1e-3, '1m'], [1, '1'], [1e3, '1k'],
+      [1e6, '1M'], [1e9, '1G'], [1e12, '1T'], [1e15, '1P'],
+      [1e18, '1E'], [1e21, '1Z'], [1e24, '1Y'], [1e27, '1R'], [1e30, '1Q'],
+    ]
+    for (const [value, expected] of cases) {
+      expect(fmt(value, 5)).toBe(expected)
+      expect(engAxis(value, 5)).toBe(expected)
+    }
+  })
+
   it('never falls back to scientific notation for instrument-scale values', () => {
-    const values = [1e12, 1e9, 1e6, 1e3, 1, 1e-3, 1e-6, 1e-9, 1e-12, 1e-15, 1e-18]
+    const values = [1e30, 1e24, 1e18, 1e12, 1e9, 1e6, 1e3, 1, 1e-3, 1e-6, 1e-9, 1e-12, 1e-15, 1e-18, 1e-24, 1e-30]
     for (const value of values) {
       expect(fmt(value, 5)).not.toMatch(/[eE][+-]?\d/)
       expect(eng(value, 'V', 5)).not.toMatch(/[eE][+-]?\d/)

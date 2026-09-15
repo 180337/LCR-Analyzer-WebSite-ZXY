@@ -4,6 +4,7 @@
 // * Screen：onEnter 全量重绘；onEvent 处理输入；onTick 推进非阻塞状态机。
 // * 界面层不直接触碰 ADC/激励/校准，只经 ILcrService/SweepEngine。
 // * 128x160 ST7735S portrait 是产品 UI 坐标系。
+// * 运行中的动态区域采用 dirty + 最小刷新间隔；不得在每个 loop 无条件刷 TFT。
 // ============================================================================
 
 #pragma once
@@ -74,6 +75,7 @@ private:
     void pumpEvents();
     void finishRun();
     void drawConfig();
+    void drawConfigField(int i);
     void drawRun();
     void updateRunProgress(bool stopping);
     void drawResult();
@@ -127,14 +129,31 @@ private:
     enum class Phase { Config, Run, Ready, Ble };
     bool startSweep();
     void drawConfig();
+    void drawConfigField(int i);
     void drawRun();
-    void updateRun(bool stopping);
+    void updateRun(bool stopping, bool force = false);
     void drawReady();
     void drawBle();
+    void updateBle(bool force = false);
     DigitEditor m_f0, m_f1, m_ppd;
     int m_field = 0;
     Phase m_phase = Phase::Config;
     uint32_t m_errUntilMs = 0;
+
+    bool m_runUiValid = false;
+    bool m_runUiStopping = false;
+    uint32_t m_lastRunUiMs = 0;
+    double m_runUiFreq = 0.0;
+    uint16_t m_runUiDone = 0;
+    uint16_t m_runUiTotal = 0;
+    uint16_t m_runUiErr = 0;
+
+    bool m_bleUiValid = false;
+    bool m_bleUiDone = false;
+    uint32_t m_lastBleUiMs = 0;
+    uint32_t m_bleUiSent = 0;
+    uint32_t m_bleUiTotal = 0;
+    uint8_t m_bleUiState = 0;
 };
 
 class TwoPortScreen : public Screen {
@@ -146,16 +165,33 @@ private:
     enum class Phase { Config, Run, Ready, Ble };
     bool startSweep();
     void drawConfig();
+    void drawConfigField(int i);
     void drawRun();
-    void updateRun(bool stopping);
+    void updateRun(bool stopping, bool force = false);
     void drawReady();
     void drawBle();
+    void updateBle(bool force = false);
     void drawPreview();
     DigitEditor m_f0, m_f1, m_ppd;
     int m_field = 0;
     BodePlot m_plot;
     Phase m_phase = Phase::Config;
     uint32_t m_errUntilMs = 0;
+
+    bool m_runUiValid = false;
+    bool m_runUiStopping = false;
+    uint32_t m_lastRunUiMs = 0;
+    double m_runUiFreq = 0.0;
+    uint16_t m_runUiDone = 0;
+    uint16_t m_runUiTotal = 0;
+    uint16_t m_runUiErr = 0;
+
+    bool m_bleUiValid = false;
+    bool m_bleUiDone = false;
+    uint32_t m_lastBleUiMs = 0;
+    uint32_t m_bleUiSent = 0;
+    uint32_t m_bleUiTotal = 0;
+    uint8_t m_bleUiState = 0;
 };
 
 class SigGenScreen : public Screen {
