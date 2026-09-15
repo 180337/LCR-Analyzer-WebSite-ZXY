@@ -72,7 +72,12 @@ watch(
   () => props.edges,
   (list) => {
     const incoming = serialize(list.map((e) => ({ id: 0, u: e.u, v: e.v, kind: e.kind })))
-    if (incoming !== serialize(edges)) importEdges(list)
+    const portsReady = nodes.some((n) => n.id === 0) && nodes.some((n) => n.id === 1)
+    // The initial model is normally an empty edge list.  Empty incoming edges
+    // and empty local edges serialize identically, so the old equality guard
+    // skipped importEdges([]) and left the fixed port nodes absent until Clear
+    // was pressed.  Port presence is part of editor state, not edge equality.
+    if (!portsReady || incoming !== serialize(edges)) importEdges(list)
   },
   { immediate: true, deep: true },
 )
