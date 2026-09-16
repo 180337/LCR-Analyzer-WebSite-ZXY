@@ -44,6 +44,10 @@ const sample = fn => ({
   re: fs.map(fn).map(z => z.re),
   im: fs.map(fn).map(z => z.im),
 })
+const configureWebBounds = (tolerance = 0) => {
+  m._lcr_configure(0, 0, 0, tolerance, 0, 0)
+  m._lcr_configure_bounds(1e-3, 1e7, 1e-10, 10, 1e-13, 1e3, 1e7, 1e-9)
+}
 
 // 1 & 9: module version and report schema revision.
 ok(
@@ -199,6 +203,51 @@ ok(
   ok(r.max_n === 3 && r.stats.generated > 0, 'search ran with maxN=3')
   const deep = call('_lcr_try1', [f64(d.f), f64(d.re), f64(d.im), N], [0, 0, 2, 8])
   ok(deep.max_depth === 2, 'explicit maxDepth honored')
+}
+
+// Website bound policy: 10 mF must be recoverable by every continuous-fit
+// path instead of clipping at the native CLI's historical 1 mF default.
+{
+  const target = 1e-2
+  const d = sample(f => ({ re: 0, im: -1 / (2 * Math.PI * f * target) }))
+
+  configureWebBounds()
+  const t1 = call('_lcr_try1', [f64(d.f), f64(d.re), f64(d.im), N], [1, 0, 0, 8])
+  const p1 = t1.candidates[0]?.diagnostics.parameters.find(
+    p => p.kind === 'C' && p.quantity === 'value',
+  )
+  ok(
+    p1 && p1.upper > 1e-3 && Math.abs(p1.value - target) / target < 1e-6,
+    'web bounds recover 10 mF in Try1',
+  )
+
+  configureWebBounds(0.2)
+  const t2 = call(
+    '_lcr_try2',
+    [f64(d.f), f64(d.re), f64(d.im), N],
+    [i32([67]), f64([target]), f64([0]), i32([1]), 1, 8],
+  )
+  const p2 = t2.candidates[0]?.diagnostics.parameters.find(
+    p => p.kind === 'C' && p.quantity === 'value',
+  )
+  ok(
+    p2 && p2.upper > 1e-3 && Math.abs(p2.value - target) / target < 1e-6,
+    'web bounds recover 10 mF in Try2 tolerance',
+  )
+
+  configureWebBounds()
+  const t3 = call(
+    '_lcr_try3',
+    [f64(d.f), f64(d.re), f64(d.im), N],
+    [i32([0]), i32([1]), i32([67]), 1],
+  )
+  const p3 = t3.candidates[0]?.diagnostics.parameters.find(
+    p => p.kind === 'C' && p.quantity === 'value',
+  )
+  ok(
+    p3 && p3.upper > 1e-3 && Math.abs(p3.value - target) / target < 1e-6,
+    'web bounds recover 10 mF in Try3',
+  )
 }
 
 console.log(checks + ' checks passed')
