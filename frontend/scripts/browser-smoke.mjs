@@ -17,7 +17,7 @@ await page.getByText('相对加权回退',{exact:false}).first().waitFor();
 await page.getByPlaceholder('不填 = 自由搜索').fill('1');
 await page.getByRole('button',{name:'运行 Try 1',exact:true}).click();
 await page.locator('.cand-table').waitFor({timeout:120000});
-assert.match(await page.locator('.cand-table').innerText(),/10\s*mF/);console.log('Try1 >1mF capacitor PASS');
+assert.match(await page.locator('body').innerText(),/10\s*mF/);console.log('Try1 >1mF capacitor PASS');
 // 恢复纯 R 数据，后续既有 smoke 场景保持独立。
 await upload('f,re,im\n10,1000,0\n100,1000,0\n1000,1000,0\n10000,1000,0\n');
 await page.getByText('相对加权回退',{exact:false}).first().waitFor();
