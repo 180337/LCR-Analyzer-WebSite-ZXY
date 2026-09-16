@@ -4,6 +4,23 @@ import wasmUrl from '../wasm/lcr.wasm?url'
 import type { FitJob } from '../lib/fitTypes'
 import { adaptReport } from '../lib/fitAdapter'
 
+// Browser policy: keep the shared native defaults for R/L/DCR and numerical
+// weighting, but do not inherit the native CLI's historical 1 mF capacitor
+// ceiling. The optimizer works in log-parameter coordinates, so a finite 1 kF
+// upper box removes the website-specific 1 mF clipping without changing the
+// R/L model or implying that the physical instrument can measure every value
+// in this search domain.
+const WEB_FIT_BOUNDS = {
+  rMin: 1e-3,
+  rMax: 1e7,
+  lMin: 1e-10,
+  lMax: 10,
+  cMin: 1e-13,
+  cMax: 1e3,
+  dcrMax: 1e7,
+  relativeFloor: 1e-9,
+} as const
+
 self.addEventListener('message', async (event: MessageEvent<FitJob>) => {
   const job = event.data
   try {
@@ -55,6 +72,18 @@ self.addEventListener('message', async (event: MessageEvent<FitJob>) => {
           job.seed ?? 1,
           job.equivalenceTolerance ?? 1e-6,
         )
+      // _lcr_configure() resets Config to native defaults, so the website's
+      // wider capacitor domain must be applied after it on every job.
+      m._lcr_configure_bounds(
+        WEB_FIT_BOUNDS.rMin,
+        WEB_FIT_BOUNDS.rMax,
+        WEB_FIT_BOUNDS.lMin,
+        WEB_FIT_BOUNDS.lMax,
+        WEB_FIT_BOUNDS.cMin,
+        WEB_FIT_BOUNDS.cMax,
+        WEB_FIT_BOUNDS.dcrMax,
+        WEB_FIT_BOUNDS.relativeFloor,
+      )
       // 4. all-or-none covariance (validated above) reaches the GLS path.
       if (job.points.every((p) => p.cov)) {
         const rr = put(job.points.map((p) => p.cov!.rr))
