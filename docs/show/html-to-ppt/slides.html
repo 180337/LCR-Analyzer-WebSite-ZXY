@@ -228,7 +228,7 @@ code.mono {
           fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".55"/>
   </svg>
   <div class="footer" style="border-color:rgba(125,211,252,.25); color:#93c5fd;">
-    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 13</span>
+    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 12</span>
   </div>
 </section>
 
@@ -263,7 +263,7 @@ code.mono {
       <div class="note blue">所有候选电路均代入<b>同一前向方程</b>计算 \(Z(f)\)，并与测量数据统一比较；这是三个引擎共享的数学骨架。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 12</span></div>
 </section>
 
 <!-- ================= 3 · circuit as graph ================= -->
@@ -292,7 +292,7 @@ code.mono {
       <div class="note">有了这一层抽象，"搜索电路结构"就变成<b>搜索图</b>：Try1/Try2 的离散部分都在图的组合空间上进行。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 12</span></div>
 </section>
 
 <!-- ================= 4 · stamp ================= -->
@@ -333,7 +333,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 12</span></div>
 </section>
 
 <!-- ================= 5 · Z = b'Y^-1 b ================= -->
@@ -369,7 +369,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 12</span></div>
 </section>
 
 <!-- ================= 6 · residual & metrics ================= -->
@@ -415,7 +415,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 12</span></div>
 </section>
 
 <!-- ================= 7 · try3 part 1 ================= -->
@@ -458,7 +458,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 12</span></div>
 </section>
 
 <!-- ================= 8 · try3 part 2 ================= -->
@@ -518,14 +518,14 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 12</span></div>
 </section>
 
 <!-- ================= 9 · try2 part 1 ================= -->
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Try2 · 已知器件的拓扑搜索</div>
-    <h1 class="title">Try2（I）：拓扑搜索——有限空间完整枚举</h1>
+    <h1 class="title">Try2：拓扑搜索——完整枚举与候选评价</h1>
   </div>
   <div class="cols">
     <div class="col wide">
@@ -553,21 +553,8 @@ code.mono {
           <li>支持 \(E\le 8\)，包含桥式与重边；组合数随 \(E\) 急增（\(E{=}7\) 已到百万级）。</li>
         </ul>
       </div>
-    </div>
-  </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 13</span></div>
-</section>
-
-<!-- ================= 10 · try2 part 2 ================= -->
-<section class="slide compact">
-  <div class="titlebar">
-    <div class="kicker">Try2 · 已知器件的拓扑搜索</div>
-    <h1 class="title">Try2（II）：拓扑搜索——候选评价与排序</h1>
-  </div>
-  <div class="cols">
-    <div class="col wide">
       <div class="card">
-        <h3>Exact 模式（默认）：固定参数下的拓扑比较</h3>
+        <h3>固定参数下的拓扑比较</h3>
         <ul class="tight">
           <li>每个候选图在<b>全部频点</b>上前向求值（0 个自由参数），按共同 RSS 目标排序。</li>
           <li>Top-K：按观测频点数值等价（默认容差 \(10^{-6}\)）聚类，每类给一个代表元。</li>
@@ -576,10 +563,10 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 12</span></div>
 </section>
 
-<!-- ================= 11 · try1 part 1 ================= -->
+<!-- ================= 10 · try1 part 1 ================= -->
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Try1 · 无先验结构的模型发现</div>
@@ -616,10 +603,10 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 12</span></div>
 </section>
 
-<!-- ================= 12 · summary ================= -->
+<!-- ================= 11 · summary ================= -->
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">共用核 · Try1–Try3 总结</div>
@@ -655,10 +642,10 @@ code.mono {
       对每个候选电路均采用统一评价流程：注入 1 A 测试电流 → 解 \(Yv=b\) → 得到 \(Z=V_1\) → 与测量数据比较。
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 12</span></div>
 </section>
 
-<!-- ================= 13 · references ================= -->
+<!-- ================= 12 · references ================= -->
 <section class="slide references-slide" id="references">
   <div class="titlebar">
     <div class="kicker">References</div>
@@ -689,7 +676,7 @@ code.mono {
       <li id="ref-19">X. He, Y. Yesha, “Parallel recognition and decomposition of two terminal series parallel graphs,” <em>Information and Computation</em>, 75(1), 15–38, 1987. <a href="https://doi.org/10.1016/0890-5401(87)90061-7">doi:10.1016/0890-5401(87)90061-7</a></li>
     </ol>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 13</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 12</span></div>
 </section>
 
 </body>
