@@ -1,6 +1,6 @@
 # docs/show — Try1–Try3 算法理论讲解幻灯
 
-当前在线展示版为 13 页、16:9 的 HTML 幻灯，聚焦 LCR 辨识算法的理论部分：
+当前在线展示版为 12 页、16:9 的 HTML 幻灯，聚焦 LCR 辨识算法的理论部分：
 统一前向模型（电路 = 图、stamp、\(Z=b^{\mathsf T}Y^{-1}b\)）、误差度量（白化残差 / WRMSE / MAXREL / AICc）、
 Try3 的最优数值计算（解析灵敏度 + Levenberg–Marquardt）、
 Try2 的图搜索（槽位多重集枚举 + 规范化去重）、Try1 的规范 SP 树枚举。
@@ -36,11 +36,10 @@ chrome --headless=new --no-pdf-header-footer --virtual-time-budget=25000 \
 5. 共用核 V：拟合误差与模型选择指标
 6. Try3（I）：元件参数计算——参数化、初值与多起点
 7. Try3（II）：元件参数计算——解析灵敏度与 Levenberg–Marquardt
-8. Try2（I）：拓扑搜索——有限空间完整枚举
-9. Try2（II）：拓扑搜索——候选评价与排序
-10. Try1：结构发现——规范串并联（SP）树枚举
-11. 总结：共用核与 Try1–Try3
-12. 参考文献与技术标准
+8. Try2：拓扑搜索——完整枚举、固定参数比较与候选排序
+9. Try1：结构发现——规范串并联（SP）树枚举
+10. 总结：共用核与 Try1–Try3
+11. 参考文献与技术标准
 
 ## 数据与图的可复现性
 
