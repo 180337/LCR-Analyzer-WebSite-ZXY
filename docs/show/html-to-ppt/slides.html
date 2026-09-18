@@ -248,7 +248,7 @@ code.mono {
           <tr><td><b>Try2</b></td><td>器件类型·数量·数值</td><td>接线（二端多重图）</td><td>枚举全部非同构图，逐图评价</td></tr>
           <tr><td><b>Try3</b></td><td>拓扑·边类型</td><td>元件数值</td><td>归约 + 多起点局部拟合 + 可辨识性诊断</td></tr>
         </table>
-        <div class="small" style="margin-top:6px">变体：Try2-Tolerance（标称值±容差内精调）、内部 Try2.5（已知类型数量、宽箱拟合）。</div>
+        <div class="small" style="margin-top:6px">内部变体：Try2.5（已知类型数量、宽箱拟合）。</div>
       </div>
     </div>
     <div class="col">
@@ -560,10 +560,10 @@ code.mono {
 <section class="slide compact">
   <div class="titlebar">
     <div class="kicker">Try2 · 已知器件的拓扑搜索</div>
-    <h1 class="title">图结构搜索（II）：候选评价、排序与实测验证</h1>
+    <h1 class="title">图结构搜索（II）：候选评价与排序</h1>
   </div>
   <div class="cols">
-    <div class="col">
+    <div class="col wide">
       <div class="card">
         <h3>Exact 模式（默认）：固定参数下的拓扑比较</h3>
         <ul class="tight">
@@ -572,17 +572,6 @@ code.mono {
           <li><b>条件最优证书</b>：枚举完整 + 无数值失败 ⇔ 可声明"该有限空间的全局最优"；连续参数拟合则永远只是局部方法。</li>
         </ul>
       </div>
-      <div class="card">
-        <h3>Tolerance 模式：标称值 ± 容差内精调</h3>
-        <ul class="tight">
-          <li>显式给出百分比容差（DCR 可另加绝对容差）才启用；每图调用公共局部优化器。</li>
-          <li>每个元件保持物理身份与自己的容差箱；标称零 DCR 无绝对容差则<b>固定为零</b>（独立参数状态，不算触界）。</li>
-        </ul>
-      </div>
-      <div class="note blue" style="font-size:13.5px">实测 data4（R/L/C/R 四器件）：857 种组合 → 11 种结构 → <b>98 个候选全部评价，rank-1 恰为真实接线</b>；标称值 WRMSE 5.26%（元件容差），拟合后 0.50% →</div>
-    </div>
-    <div class="col wide">
-      <div class="figwrap"><img class="fig" src="assets/figs/try3-data4-4.png"></div>
     </div>
   </div>
   <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 13</span></div>
@@ -686,9 +675,6 @@ code.mono {
   <div class="titlebar">
     <div class="kicker">References</div>
     <h1 class="title">参考文献与技术标准</h1>
-  </div>
-  <div class="ref-intro">
-    与项目理论文档编号保持一致；正文中的上标 [n] 可点击跳转至本页。为避免题名、期刊与 DOI 在翻译中产生歧义，正式条目保留英文原文。
   </div>
   <div class="ref-grid">
     <ol class="references">
