@@ -643,31 +643,13 @@ code.mono {
         </div>
       </div>
     </div>
-    <div class="cols">
-      <div class="col">
-        <div class="card">
-          <h3>三个关键公式</h3>
-          <div class="fbox">
-            \[
-            Z=b^{\mathsf T}Y^{-1}b,\qquad
-            \frac{\partial Z}{\partial q_e}=-\frac{\partial y_e}{\partial q_e}(V_u-V_v)^2
-            \]
-            \[
-            \mathrm{AICc}=n\log(J/n)+2k+\frac{2k(k+1)}{n-k-1}
-            \]
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card">
-          <h3>三种引擎概览</h3>
-          <ul class="tight">
-            <li><b>Try1</b>：枚举规范 SP 树，同时搜索结构、类型与元件参数。</li>
-            <li><b>Try2</b>：器件集合已知，完整枚举非同构多重图并对候选拓扑统一评价。</li>
-            <li><b>Try3</b>：拓扑已知，经过归约与解析灵敏度 LM 拟合元件参数，并输出可辨识性诊断。</li>
-          </ul>
-        </div>
-      </div>
+    <div class="card">
+      <h3>三种引擎概览</h3>
+      <ul class="tight">
+        <li><b>Try1</b>：枚举规范 SP 树，同时搜索结构、类型与元件参数。</li>
+        <li><b>Try2</b>：器件集合已知，完整枚举非同构多重图并对候选拓扑统一评价。</li>
+        <li><b>Try3</b>：拓扑已知，经过归约与解析灵敏度 LM 拟合元件参数，并输出可辨识性诊断。</li>
+      </ul>
     </div>
     <div class="note blue" style="text-align:center;font-size:15.5px">
       对每个候选电路均采用统一评价流程：注入 1 A 测试电流 → 解 \(Yv=b\) → 得到 \(Z=V_1\) → 与测量数据比较。
