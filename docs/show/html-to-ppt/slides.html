@@ -103,6 +103,36 @@ ul.tight { margin: 4px 0 0 0; padding-left: 22px; }
 ul.tight li { margin: 4.5px 0; }
 ul.tight li::marker { color: var(--accent); }
 .small { font-size: 14px; color: var(--muted); }
+.cite {
+  font-size: .68em; vertical-align: super; line-height: 0;
+  margin-left: 2px; font-weight: 800;
+}
+.cite a {
+  color: var(--accent-dark); text-decoration: none;
+  border-bottom: 1px dotted #93c5fd;
+}
+.cite a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+.metric-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 8px;
+}
+.metric-pill {
+  display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: baseline;
+  padding: 6px 9px; border: 1px solid #bfdbfe; border-radius: 8px; background: #f8fbff;
+  font-size: 12.5px; line-height: 1.25;
+}
+.metric-pill b { color: var(--accent-dark); font-size: 13.5px; letter-spacing: .2px; }
+.metric-pill span { color: var(--ink2); font-weight: 600; }
+.metric-pill code { grid-column: 1 / -1; color: var(--muted); font-size: 11.5px; }
+.references-slide { font-size: 13px; }
+.references-slide .titlebar { margin-bottom: 11px; }
+.ref-intro { font-size: 12.5px; color: var(--muted); margin: -2px 0 8px; }
+.ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; flex: 1 1 auto; min-height: 0; }
+.references {
+  margin: 0; padding-left: 25px; font-size: 10.5px; line-height: 1.24;
+}
+.references li { margin: 0 0 5px 0; padding-left: 2px; break-inside: avoid; }
+.references a { color: var(--accent-dark); text-decoration: none; overflow-wrap: anywhere; }
+.references em { color: var(--ink2); }
 .note {
   background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
   padding: 8px 14px; font-size: 14.5px; color: #713f12;
@@ -190,7 +220,7 @@ code.mono {
           fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".55"/>
   </svg>
   <div class="footer" style="border-color:rgba(125,211,252,.25); color:#93c5fd;">
-    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 18</span>
+    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 19</span>
   </div>
 </section>
 
@@ -205,9 +235,10 @@ code.mono {
       <div class="card">
         <h3>测量能给我们什么</h3>
         <ul class="tight">
-          <li>对数扫频得到离散复阻抗序列 \(\{(f_k,\,Z_k)\}_{k=1..M}\)，本例 \(M=20\ldots40\)，10 Hz–10 kHz。</li>
+          <li>对数扫频得到离散复阻抗序列 \(\{(f_k,\,Z_k)\}_{k=1..M}\)，本例 \(M=20\ldots40\)，10 Hz–10 kHz。<sup class="cite"><a href="#ref-1" title="IEEE 1057-2017">[1]</a></sup></li>
           <li>唯一可观测的是<b>端口行为</b> \(Z(s)\)；内部结构需要靠"假设—计算—比较"的逆问题求解。</li>
         </ul>
+        <div class="small" style="margin-top:5px">测量链理论来源：已知频率正弦拟合参照<sup class="cite"><a href="#ref-1">[1]</a></sup>；一端口 OSL 系统误差模型参照<sup class="cite"><a href="#ref-17">[17]</a></sup>。</div>
       </div>
       <div class="card">
         <h3>三个引擎 = 同一逆问题的三档先验</h3>
@@ -225,7 +256,7 @@ code.mono {
       <div class="note blue">不管怎么"猜"，每个候选电路最终都代入<b>同一个前向方程</b>算出 \(Z(f)\)，再与测量比较——这是三个引擎共享的数学骨架。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 19</span></div>
 </section>
 
 <!-- ================= 3 · circuit as graph ================= -->
@@ -258,7 +289,7 @@ code.mono {
       <div class="small" style="text-align:center">示例：3 节点、3 条边 \(L\parallel(R+C)\) 的图与它的节点导纳矩阵</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 19</span></div>
 </section>
 
 <!-- ================= 4 · stamp ================= -->
@@ -300,7 +331,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 19</span></div>
 </section>
 
 <!-- ================= 5 · Z = b'Y^-1 b ================= -->
@@ -312,7 +343,7 @@ code.mono {
   <div class="cols">
     <div class="col wide">
       <div class="card">
-        <h3>四步推导（单位电流激励）</h3>
+        <h3>四步推导（单位电流激励）<sup class="cite"><a href="#ref-2" title="Ho, Ruehli & Brennan, 1975">[2]</a></sup></h3>
         <ul class="tight">
           <li>端口 0 接地；向端口 1 强制注入 \(1\,\mathrm{A}\)：右端 \(b=e_1\)（端口 1 对应的单位向量）。</li>
           <li>KCL 矩阵形式：\(Yv=b\)，解得 \(v=Y^{-1}b\)。</li>
@@ -346,14 +377,14 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 19</span></div>
 </section>
 
 <!-- ================= 6 · residual & metrics ================= -->
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Fitting Objective</div>
-    <h1 class="title">拟合与测量的差距怎么量化：残差、wRMSE 与 AICc</h1>
+    <h1 class="title">拟合与测量的差距怎么量化：WRMSE、MAXREL 与 AICc</h1>
   </div>
   <div class="cols">
     <div class="col wide">
@@ -367,11 +398,16 @@ code.mono {
         </div>
         <ul class="tight">
           <li>目标函数 \(J=\sum_k\|r_k\|^2\)（相对加权：\(1\,\mathrm{k\Omega}\) 与 \(1\,\mathrm{\Omega}\) 的数据同等对待；近零保护防除零）。</li>
-          <li>报告指标：<b>wRMSE</b> \(=\sqrt{\overline{\|r_k\|^2}}\)（整体相对误差）与 <b>maxRel</b>（最差点）；可选逐点协方差做 GLS。</li>
+          <li>报告指标：<b>WRMSE</b> \(=\sqrt{\overline{\|r_k\|^2}}\)（整体相对误差）与 <b>MAXREL</b>（最差单频点相对误差）；可选逐点协方差做 GLS。</li>
         </ul>
+        <div class="metric-strip">
+          <div class="metric-pill"><b>WRMSE</b><span>看整体</span><code>field: wrmse · 越小越好</code></div>
+          <div class="metric-pill"><b>MAXREL</b><span>查最坏点</span><code>field: max_relative_error · 越小越好</code></div>
+          <div class="metric-pill"><b>AICc</b><span>防过拟合</span><code>同一数据/似然假设下比较 · 越小越好</code></div>
+        </div>
       </div>
       <div class="card">
-        <h3>复杂度惩罚：AICc（小样本修正 AIC）</h3>
+        <h3>复杂度惩罚：AICc（小样本修正 AIC）<sup class="cite"><a href="#ref-13">[13]</a></sup><sup class="cite"><a href="#ref-14">[14]</a></sup></h3>
         <div class="fbox">
           \[
           \mathrm{AICc}=n\log\!\bigl(\max(J/n,10^{-300})\bigr)+2k+\frac{2k(k+1)}{n-k-1},
@@ -383,17 +419,17 @@ code.mono {
     </div>
     <div class="col narrow">
       <div class="card" style="flex:1">
-        <h3>鲁棒选项（只影响拟合权重）</h3>
+        <h3>鲁棒选项（只影响拟合权重）<sup class="cite"><a href="#ref-15" title="Huber, 1964">[15]</a></sup></h3>
         <ul class="tight">
           <li>Huber IRLS：对白化残差范数取 \(2.5\times\)中位数为阈值降权，至多 3 轮，要求过半点保持内点。</li>
-          <li>原始相对权重的 wRMSE / maxRel <b>始终照常报告</b>，异常点不从报告中消失。</li>
+          <li>原始相对权重的 WRMSE / MAXREL <b>始终照常报告</b>，异常点不从报告中消失。</li>
           <li>robust 运行不参与 AICc 校准选择，按 RSS 诊断回退排序。</li>
         </ul>
       </div>
       <div class="note green">这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 19</span></div>
 </section>
 
 <!-- ================= 7 · try3 part 1 ================= -->
@@ -436,7 +472,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 19</span></div>
 </section>
 
 <!-- ================= 8 · try3 part 2 ================= -->
@@ -462,7 +498,7 @@ code.mono {
         </ul>
       </div>
       <div class="card">
-        <h3>阻尼最小二乘步（增广方程，SVD 直接求解）</h3>
+        <h3>阻尼最小二乘步（增广方程，SVD 直接求解）<sup class="cite"><a href="#ref-10" title="Marquardt, 1963">[10]</a></sup></h3>
         <div class="fbox">
           \[
           \min_{\Delta}\left\|
@@ -496,7 +532,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 19</span></div>
 </section>
 
 <!-- ================= 9 · try3 part 3 ================= -->
@@ -524,7 +560,7 @@ code.mono {
       <div class="card" style="padding:10px 16px">
         <h3>拟合后：可辨识性诊断（而不是"猜完了就完了"）</h3>
         <ul class="tight">
-          <li>加权实 Jacobian 的 SVD：数值秩、奇异值、条件数——满列秩支持<b>局部可辨识</b>；单点秩亏不自动证明全局参数族。</li>
+          <li>加权实 Jacobian 的 SVD：数值秩、奇异值、条件数——满列秩支持<b>局部可辨识</b>；单点秩亏不自动证明全局参数族。<sup class="cite"><a href="#ref-11">[11]</a></sup><sup class="cite"><a href="#ref-12">[12]</a></sup></li>
           <li>弹性度 \(\max_f |q\,\partial Z/\partial q|/|Z|&lt;0.1\) 标记 weak；atBound、多起点一致性（agreeingStarts）单独报告。</li>
           <li>条件满足时给线性化 SE 与 95% 区间：\(C_x=V\,\mathrm{diag}(\sigma_i^{-2})V^{\mathsf T}\cdot\frac{J}{n-p}\)，对数坐标经 \(10^{x}\) 映射回物理单位。</li>
           <li>结论分级：IDENTIFIABLE_LOCAL / AMBIGUOUS_EQUIVALENCE_CLASS / NUMERICALLY_UNSTABLE / DATA_INSUFFICIENT / LOCAL_FIT_UNCONFIRMED。</li>
@@ -536,7 +572,7 @@ code.mono {
       <div class="note" style="font-size:13.5px">真实案例 data4：rank 5/5、条件数 32.8、9/16 起点一致——局部可辨识；但 \(R_1\) 回收 138 Ω，CI [132.6, 144.1] <b>不含标称 200 Ω</b>：并联槽路阻尼由 \(R_1\) 与 L 的 DCR 强相关地共同提供。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 19</span></div>
 </section>
 
 <!-- ================= 10 · try2 part 1 ================= -->
@@ -563,7 +599,7 @@ code.mono {
         </ul>
       </div>
       <div class="card">
-        <h3>剪掉重复与无效：规范化（canonicalization）</h3>
+        <h3>剪掉重复与无效：规范化（canonicalization）<sup class="cite"><a href="#ref-16" title="McKay & Piperno, 2014">[16]</a></sup></h3>
         <ul class="tight">
           <li>结构过滤：无孤立节点；<b>活动性</b>检查（所有元件必须端口连通，完整割点死区直接排除）。</li>
           <li>内部节点重命名与互易端口交换不改变电路 → 枚举全部置换，取<b>字典序最小签名</b>作为"身份证"去重（同一电路只算一次）。</li>
@@ -576,7 +612,7 @@ code.mono {
       <div class="figwrap"><img class="fig" src="assets/figs/fig-funnel.png"></div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 19</span></div>
 </section>
 
 <!-- ================= 11 · try2 part 2 ================= -->
@@ -602,13 +638,13 @@ code.mono {
           <li>每个元件保持物理身份与自己的容差箱；标称零 DCR 无绝对容差则<b>固定为零</b>（独立参数状态，不算触界）。</li>
         </ul>
       </div>
-      <div class="note blue" style="font-size:13.5px">实测 data4（R/L/C/R 四器件）：857 种组合 → 11 种结构 → <b>98 个候选全部评价，rank-1 恰为真实接线</b>；标称值 wRMSE 5.26%（元件容差），拟合后 0.50% →</div>
+      <div class="note blue" style="font-size:13.5px">实测 data4（R/L/C/R 四器件）：857 种组合 → 11 种结构 → <b>98 个候选全部评价，rank-1 恰为真实接线</b>；标称值 WRMSE 5.26%（元件容差），拟合后 0.50% →</div>
     </div>
     <div class="col wide">
       <div class="figwrap"><img class="fig" src="assets/figs/try3-data4-4.png"></div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 19</span></div>
 </section>
 
 <!-- ================= 12 · try1 part 1 ================= -->
@@ -648,7 +684,7 @@ code.mono {
       <div class="note green">每棵树 expand 成图（SER 链生成内部节点）后，进入<b>同一个</b> \(Z=b^{\mathsf T}Y^{-1}b\) 前向求值与共享拟合——Try1 的"猜测"与 Try2/Try3 的"计算"无缝衔接。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 19</span></div>
 </section>
 
 <!-- ================= 13 · try1 part 2 ================= -->
@@ -663,8 +699,8 @@ code.mono {
         <h3>辅助路径：从数据直接综合出候选电路</h3>
         <ul class="tight">
           <li>尺度化（\(s/\omega_0\)、\(Z/Z_0\)，\(\omega_0\) 取频带几何中心）后做<b>实系数有理最小二乘</b>。</li>
-          <li>解分母校正后用<b>特征值重定位</b>移动极点，再重拟合留数（vector fitting 思想的实数基版本）。</li>
-          <li>稳定极点 ≠ 无源性：<b>只接纳能显式综合为正值器件的 Foster 类</b>实现。</li>
+          <li>解分母校正后用<b>特征值重定位</b>移动极点，再重拟合留数（vector fitting 思想的实数基版本）。<sup class="cite"><a href="#ref-9">[9]</a></sup></li>
+          <li>稳定极点 ≠ 无源性：<b>只接纳能显式综合为正值器件的 Foster 类</b>实现。<sup class="cite"><a href="#ref-5">[5]</a></sup></li>
         </ul>
       </div>
       <div class="card">
@@ -687,14 +723,14 @@ code.mono {
       <div class="card" style="flex:1">
         <h3>定位与边界</h3>
         <ul class="tight">
-          <li>这是一个<b>明确的 Foster 子族</b>，不是任意正实函数的通用综合（不含 Cauer/Brune）。</li>
+          <li>这是一个<b>明确的 Foster 子族</b>，不是任意正实函数的通用综合（不含 Cauer / Brune / Bott–Duffin 的一般综合）。<sup class="cite"><a href="#ref-3">[3]</a></sup><sup class="cite"><a href="#ref-4">[4]</a></sup><sup class="cite"><a href="#ref-6">[6]</a></sup></li>
           <li>SP 离散枚举完整 ≠ 连续内层全局最优；也不宣称真实桥式结构一定在假设空间内。</li>
           <li>Strict 模式不做未证明安全的"有限频带斜率删枝"。</li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 19</span></div>
 </section>
 
 <!-- ================= 14 · selection ================= -->
@@ -726,14 +762,14 @@ code.mono {
     <div class="col wide">
       <div class="figwrap"><img class="fig" src="assets/figs/try1-data2-2.png" style="max-height:330px"></div>
       <table class="data" style="margin-top:2px; font-size:14px">
-        <tr><th>rank</th><th>模型（data2 盲搜）</th><th class="num">器件</th><th class="num">wRMSE</th><th class="num">AICc</th><th class="num">ΔAICc</th></tr>
+        <tr><th>rank</th><th>模型（data2 盲搜）</th><th class="num">器件</th><th class="num">WRMSE</th><th class="num">AICc</th><th class="num">ΔAICc</th></tr>
         <tr><td>1</td><td>\(L\parallel((R\parallel C)+R')\)</td><td class="num">4</td><td class="num">0.90%</td><td class="num">−390.0</td><td class="num">0</td></tr>
         <tr><td>3</td><td>\((L{+}DCR)\parallel C\) 加小串联修正</td><td class="num">4</td><td class="num">0.96%</td><td class="num">−385.2</td><td class="num">4.8</td></tr>
         <tr><td>5</td><td>\(C\parallel L(+DCR)\parallel R\)</td><td class="num">3</td><td class="num">1.18%</td><td class="num">−371.4</td><td class="num">18.6</td></tr>
       </table>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">14 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">14 / 19</span></div>
 </section>
 
 <!-- ================= 15 · results 1 ================= -->
@@ -759,7 +795,7 @@ code.mono {
       <div class="card">
         <h3>质量指标</h3>
         <ul class="tight">
-          <li>wRMSE = <b>1.90%</b>，maxRel = 3.87%</li>
+          <li>WRMSE = <b>1.90%</b>，MAXREL = 3.87%</li>
           <li>Jacobian 满秩 → <b>IDENTIFIABLE_LOCAL</b></li>
           <li>约 500 Hz 处并联谐振（\(Q\approx0.9\)）被完整捕获</li>
         </ul>
@@ -767,7 +803,7 @@ code.mono {
       <div class="note">回收值与标称的偏差来自元件容差（C 实际 ≈0.95 µF）——评价拟合应与独立复核的"回收真值"而非标称比较。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">15 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">15 / 19</span></div>
 </section>
 
 <!-- ================= 16 · results 2 ================= -->
@@ -779,11 +815,11 @@ code.mono {
   <div class="cols">
     <div class="col wide">
       <div class="figwrap"><img class="fig" src="assets/figs/try3-data3-3.png"></div>
-      <div class="small" style="text-align:center;margin-top:2px">data3（40 点，含明显噪声）：wRMSE 2.12%，逐点相对误差基本落在 ±4% 内</div>
+      <div class="small" style="text-align:center;margin-top:2px">data3（40 点，含明显噪声）：WRMSE 2.12%，逐点相对误差基本落在 ±4% 内</div>
     </div>
     <div class="col narrow">
       <div class="card">
-        <h3>四组实测 · rank-1 wRMSE（%）</h3>
+        <h3>四组实测 · rank-1 WRMSE（%）</h3>
         <table class="data">
           <tr><th>数据</th><th class="num">Try1</th><th class="num">Try2 Exact*</th><th class="num">Try2 Tol†</th><th class="num">Try3</th></tr>
           <tr><td>data1 R∥C</td><td class="num">0.53</td><td class="num">2.34</td><td class="num">0.92</td><td class="num">0.92</td></tr>
@@ -796,7 +832,7 @@ code.mono {
       <div class="note green">Try1（盲搜）达到甚至优于带标称值先验的 Try2——AICc 分层 + 多起点局部拟合的组合在观测频带内足够锋利；Try2 Exact 的差距纯粹来自元件容差。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">16 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">16 / 19</span></div>
 </section>
 
 <!-- ================= 17 · honest boundaries ================= -->
@@ -810,7 +846,7 @@ code.mono {
       <div class="card">
         <ul class="tight">
           <li><b>端口行为 ≠ 物理内部。</b>单端口测量首先辨识 \(Z(s)\)，再找它的一个实现：\(R_1{+}R_2\) 与等值 R、\(R{+}(R_d{+}sL)\) 与等值 L+DCR 永远不可区分；exactN 是等效模型器件数，不是 BOM 数。</li>
-          <li><b>行为等价是数值的、局部的。</b>observed-grid 等价只在观测频点上成立；不同拓扑可以有几乎相同的驱动点阻抗。实测例：Try1 在 data4 的 rank-1 为 \(R{+}\bigl(L\parallel(C{+}R')\bigr)\)，与真值 \(R_2{+}(R_1\parallel L\parallel C)\) 结构不同、wRMSE 同为 0.50%。</li>
+          <li><b>行为等价是数值的、局部的。</b>observed-grid 等价只在观测频点上成立；不同拓扑可以有几乎相同的驱动点阻抗。<sup class="cite"><a href="#ref-7">[7]</a></sup><sup class="cite"><a href="#ref-8">[8]</a></sup> 实测例：Try1 在 data4 的 rank-1 为 \(R{+}\bigl(L\parallel(C{+}R')\bigr)\)，与真值 \(R_2{+}(R_1\parallel L\parallel C)\) 结构不同、WRMSE 同为 0.50%。</li>
           <li><b>局部最优无全局证书。</b>多起点只能提高可信度（agreeingStarts 是诊断），不能证明连续参数全局最优；Try2.5/Tolerance/连续拟合一律 continuous_global_certified=false。</li>
           <li><b>满秩 ≠ 唯一。</b>正则内点满列秩只支持局部可辨识；单点秩亏也不自动证明存在全局连续参数族。weak 弹性度是经验阈值。</li>
           <li><b>数值诊断不是误差界。</b>rcond/后向误差是浮点可靠性诊断；AICc 在非线性、有界、系统误差场景只是近似诊断，不是校准的模型概率。</li>
@@ -830,7 +866,7 @@ code.mono {
       <div class="note">这套"诚实边界"本身就是设计目标的一部分：让使用者知道每个数字的可信度层级。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">17 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">17 / 19</span></div>
 </section>
 
 <!-- ================= 18 · summary ================= -->
@@ -883,7 +919,42 @@ code.mono {
       每猜出一个候选电路，判断方法永远一样：灌 1 A 电流 → 解 \(Yv=b\) → \(Z=V_1\) → 与测量比较。
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">18 / 18</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">18 / 19</span></div>
+</section>
+
+<!-- ================= 19 · references ================= -->
+<section class="slide references-slide" id="references">
+  <div class="titlebar">
+    <div class="kicker">References</div>
+    <h1 class="title">参考文献与技术标准</h1>
+  </div>
+  <div class="ref-intro">
+    与项目理论文档编号保持一致；正文中的上标 [n] 可点击跳转至本页。为避免题名、期刊与 DOI 在翻译中产生歧义，正式条目保留英文原文。
+  </div>
+  <div class="ref-grid">
+    <ol class="references">
+      <li id="ref-1">IEEE Std 1057-2017, <em>IEEE Standard for Digitizing Waveform Recorders</em>, Annex A: three-parameter known-frequency sine fitting.</li>
+      <li id="ref-2">C.-W. Ho, A. E. Ruehli, P. A. Brennan, “The modified nodal approach to network analysis,” <em>IEEE Trans. Circuits and Systems</em>, 22(6), 504–509, 1975. <a href="https://doi.org/10.1109/TCS.1975.1084079">doi:10.1109/TCS.1975.1084079</a></li>
+      <li id="ref-3">O. Brune, “Synthesis of a Finite Two-terminal Network whose Driving-point Impedance is a Prescribed Function of Frequency,” <em>J. Mathematics and Physics</em>, 10, 191–236, 1931. <a href="https://doi.org/10.1002/sapm1931101191">doi:10.1002/sapm1931101191</a></li>
+      <li id="ref-4">R. J. Duffin, R. Bott, “Impedance synthesis without use of transformers,” <em>J. Applied Physics</em>, 20(8), 816, 1949. <a href="https://doi.org/10.1063/1.1698532">doi:10.1063/1.1698532</a></li>
+      <li id="ref-5">R. M. Foster, “A Reactance Theorem,” <em>Bell System Technical Journal</em>, 3, 259–267, 1924.</li>
+      <li id="ref-6">W. Cauer, classical works on realization of prescribed frequency-dependent impedances and ladder synthesis, 1926–1927; see also Brune [3].</li>
+      <li id="ref-7">S. Chaiken, “A Combinatorial Proof of the All Minors Matrix Tree Theorem,” <em>SIAM J. Algebraic Discrete Methods</em>, 3(3), 319–329, 1982. <a href="https://doi.org/10.1137/0603033">doi:10.1137/0603033</a></li>
+      <li id="ref-8">H. Whitney, “2-Isomorphic Graphs,” <em>American Journal of Mathematics</em>, 55(1), 245–254, 1933. <a href="https://doi.org/10.2307/2371127">doi:10.2307/2371127</a></li>
+      <li id="ref-9">B. Gustavsen, A. Semlyen, “Rational approximation of frequency domain responses by vector fitting,” <em>IEEE Trans. Power Delivery</em>, 14(3), 1052–1061, 1999. <a href="https://doi.org/10.1109/61.772353">doi:10.1109/61.772353</a></li>
+    </ol>
+    <ol class="references" start="10">
+      <li id="ref-10">D. W. Marquardt, “An Algorithm for Least-Squares Estimation of Nonlinear Parameters,” <em>J. Society for Industrial and Applied Mathematics</em>, 11(2), 431–441, 1963. <a href="https://doi.org/10.1137/0111030">doi:10.1137/0111030</a></li>
+      <li id="ref-11">T. J. Rothenberg, “Identification in Parametric Models,” <em>Econometrica</em>, 39(3), 577–591, 1971. <a href="https://doi.org/10.2307/1913267">doi:10.2307/1913267</a></li>
+      <li id="ref-12">L. Ljung, T. Glad, “On global identifiability for arbitrary model parametrizations,” <em>Automatica</em>, 30(2), 265–276, 1994. <a href="https://doi.org/10.1016/0005-1098(94)90029-9">doi:10.1016/0005-1098(94)90029-9</a></li>
+      <li id="ref-13">H. Akaike, “A new look at the statistical model identification,” <em>IEEE Trans. Automatic Control</em>, 19(6), 716–723, 1974. <a href="https://doi.org/10.1109/TAC.1974.1100705">doi:10.1109/TAC.1974.1100705</a></li>
+      <li id="ref-14">C. M. Hurvich, C.-L. Tsai, “Regression and time series model selection in small samples,” <em>Biometrika</em>, 76(2), 297–307, 1989. <a href="https://doi.org/10.1093/biomet/76.2.297">doi:10.1093/biomet/76.2.297</a></li>
+      <li id="ref-15">P. J. Huber, “Robust Estimation of a Location Parameter,” <em>The Annals of Mathematical Statistics</em>, 35(1), 73–101, 1964. <a href="https://doi.org/10.1214/aoms/1177703732">doi:10.1214/aoms/1177703732</a></li>
+      <li id="ref-16">B. D. McKay, A. Piperno, “Practical graph isomorphism, II,” <em>Journal of Symbolic Computation</em>, 60, 94–112, 2014. <a href="https://doi.org/10.1016/j.jsc.2013.09.003">doi:10.1016/j.jsc.2013.09.003</a></li>
+      <li id="ref-17">Keysight Technologies, “1-Port Calibration (reflection test)” and “Measurement Errors”: one-port OSL calibration corrects directivity, source match, and reflection tracking errors. Manufacturer technical documentation.</li>
+    </ol>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">19 / 19</span></div>
 </section>
 
 </body>
