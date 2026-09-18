@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>LCR 阻抗测量与电路辨识 · Try1–Try3 算法理论</title>
+<link rel="stylesheet" href="assets/katex/katex.min.css">
+<script defer src="assets/katex/katex.min.js"></script>
+<script defer src="assets/katex/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: "\\(", right: "\\)", display: false},
+      {left: "\\[", right: "\\]", display: true}
+    ],
+    throwOnError: false
+  });
+});
+</script>
+<style>
+:root {
+  --ink: #0f172a;
+  --ink2: #334155;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-dark: #1e40af;
+  --accent-soft: #eff6ff;
+  --teal: #0d9488;
+  --orange: #ea580c;
+  --line: #e2e8f0;
+  --card: #ffffff;
+  --bg: #fbfcfe;
+}
+@page { size: 1280px 720px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  color: var(--ink);
+  background: #dfe6ef;
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.slide {
+  width: 1280px; height: 720px;
+  background: var(--bg);
+  padding: 40px 60px 58px 60px;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  break-after: page;
+  display: flex; flex-direction: column;
+}
+@media screen {
+  .slide { margin: 26px auto; box-shadow: 0 8px 30px rgba(15,23,42,.18); border-radius: 6px; }
+}
+@media print {
+  body { background: white; }
+  .slide { margin: 0; box-shadow: none; border-radius: 0; }
+  .slide:last-child { page-break-after: auto; }
+}
+.kicker {
+  font-size: 12.5px; letter-spacing: 2.5px; font-weight: 600;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 2px;
+}
+h1.title { font-size: 30px; margin: 0 0 4px 0; font-weight: 700; letter-spacing: .5px; }
+.titlebar { border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 18px; }
+.titlebar::after { content: ""; }
+.footer {
+  position: absolute; left: 60px; right: 60px; bottom: 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--muted);
+  border-top: 1px solid var(--line); padding-top: 8px;
+}
+.footer .pageno { font-variant-numeric: tabular-nums; }
+
+.slide.compact { font-size: 15.5px; }
+.slide.compact .card { padding: 10px 16px; }
+.slide.compact ul.tight li { margin: 3px 0; }
+.slide.compact .cols { gap: 20px; }
+.cols { display: flex; gap: 26px; flex: 1 1 auto; min-height: 0; }
+.col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.col.narrow { flex: 0.78 1 0; }
+.col.wide { flex: 1.35 1 0; }
+
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 13px 18px; box-shadow: 0 1px 3px rgba(15,23,42,.05);
+}
+.card h3 { margin: 0 0 6px 0; font-size: 16.5px; color: var(--accent-dark); }
+.card h3 .no { color: var(--accent); font-weight: 800; margin-right: 6px; }
+.fbox {
+  background: var(--accent-soft); border-left: 4px solid var(--accent);
+  border-radius: 8px; padding: 10px 16px; margin: 8px 0;
+}
+.fbox .katex-display { margin: 6px 0; }
+.katex { font-size: 1.05em; }
+.katex-display { margin: 8px 0; }
+
+ul.tight { margin: 4px 0 0 0; padding-left: 22px; }
+ul.tight li { margin: 4.5px 0; }
+ul.tight li::marker { color: var(--accent); }
+.small { font-size: 14px; color: var(--muted); }
+.note {
+  background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+  padding: 8px 14px; font-size: 14.5px; color: #713f12;
+}
+.note.blue { background: #eff6ff; border-color: #bfdbfe; color: #1e3a5f; }
+.note.green { background: #ecfdf5; border-color: #a7f3d0; color: #064e3b; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+.chip {
+  background: var(--accent-soft); color: var(--accent-dark); border: 1px solid #bfdbfe;
+  border-radius: 999px; padding: 3px 14px; font-size: 14px; font-weight: 600; white-space: nowrap;
+}
+.flowline { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; }
+.flowstep {
+  background: #fff; border: 1.5px solid var(--accent); color: var(--accent-dark);
+  border-radius: 10px; padding: 7px 13px; font-size: 14.5px; font-weight: 600; white-space: nowrap;
+}
+.flowarrow { color: var(--accent); font-size: 19px; padding: 0 7px; font-weight: 700; }
+
+table.data { border-collapse: collapse; width: 100%; font-size: 15px; }
+table.data th {
+  background: #f1f5f9; color: var(--ink); font-weight: 700;
+  border-bottom: 2px solid #cbd5e1; padding: 7px 10px; text-align: left;
+}
+table.data td { border-bottom: 1px solid var(--line); padding: 6.5px 10px; }
+table.data tr:last-child td { border-bottom: none; }
+table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.hl { color: var(--accent-dark); font-weight: 700; }
+
+img.fig { width: 100%; object-fit: contain; border-radius: 8px; }
+.figwrap { display: flex; align-items: center; justify-content: center; min-height: 0; }
+.tag {
+  display: inline-block; font-size: 12.5px; font-weight: 700; border-radius: 6px;
+  padding: 1px 9px; margin-right: 7px; vertical-align: 1px;
+}
+.tag.b { background: #dbeafe; color: #1e40af; }
+.tag.g { background: #d1fae5; color: #065f46; }
+.tag.o { background: #ffedd5; color: #9a3412; }
+.tag.r { background: #fee2e2; color: #991b1b; }
+code.mono {
+  font-family: "Cascadia Code", Consolas, monospace; font-size: 14px;
+  background: #f1f5f9; border-radius: 5px; padding: 1px 6px; color: #0f3a5f;
+}
+.twocol-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 26px; }
+
+/* ---------- cover ---------- */
+.slide.cover {
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(14,165,233,.28), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(37,99,235,.35), transparent 55%),
+    linear-gradient(135deg, #0b1f3a 0%, #10315c 55%, #0c4a6e 100%);
+  color: #f0f6ff; justify-content: center; padding: 70px 90px;
+}
+.cover .kicker { color: #7dd3fc; }
+.cover h1 { font-size: 52px; margin: 10px 0 14px; font-weight: 800; letter-spacing: 1px; }
+.cover h2 { font-size: 24px; font-weight: 500; color: #bae6fd; margin: 0 0 34px; }
+.cover .coverformula {
+  background: rgba(255,255,255,.08); border: 1px solid rgba(125,211,252,.35);
+  border-radius: 14px; padding: 18px 30px; display: inline-block;
+  font-size: 20px; backdrop-filter: blur(2px);
+}
+.cover .coverformula .katex { color: #e0f2fe; font-size: 1.5em; }
+.cover .meta { margin-top: 46px; font-size: 15px; color: #93c5fd; line-height: 1.9; }
+.cover .wave { position: absolute; right: 70px; bottom: 60px; opacity: .5; }
+</style>
+</head>
+<body>
+
+<!-- ================= 1 · cover ================= -->
+<section class="slide cover">
+  <div class="kicker">LCR ANALYZER · ALGORITHM THEORY</div>
+  <h1>LCR 阻抗测量与电路辨识</h1>
+  <h2>Try1–Try3：统一前向模型、图搜索与参数优化</h2>
+  <div class="coverformula">
+    给定扫频测量 \(Z(f_k)\)，寻找电路图 \(G\) 与参数 \(\theta\)，使
+    \(\;Z_{\text{calc}}(f_k)=b^{\mathsf T}Y^{-1}(f_k)\,b\;\) 逼近测量
+  </div>
+  <div class="meta">
+    基于 AlgorithmLcr v4.1.2 共享 C++/Eigen 核心（原生 CLI 与浏览器 WASM 同源）<br>
+    所有拟合图与数字均来自本仓库对四组真实测量数据（10 Hz–10 kHz）的实际运行
+  </div>
+  <svg class="wave" width="360" height="120" viewBox="0 0 360 120">
+    <path d="M0,60 C30,10 60,10 90,60 S150,110 180,60 S270,10 300,60 S345,105 360,60"
+          fill="none" stroke="#7dd3fc" stroke-width="2.5"/>
+    <path d="M0,60 C30,25 60,25 90,60 S150,95 180,60 S270,25 300,60 S345,92 360,60"
+          fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".55"/>
+  </svg>
+  <div class="footer" style="border-color:rgba(125,211,252,.25); color:#93c5fd;">
+    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 18</span>
+  </div>
+</section>
+
+<!-- ================= 2 · problem ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Overview</div>
+    <h1 class="title">问题：从黑盒的 \(Z(f)\) 恢复电路 \((G,\theta)\)</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>测量能给我们什么</h3>
+        <ul class="tight">
+          <li>对数扫频得到离散复阻抗序列 \(\{(f_k,\,Z_k)\}_{k=1..M}\)，本例 \(M=20\ldots40\)，10 Hz–10 kHz。</li>
+          <li>唯一可观测的是<b>端口行为</b> \(Z(s)\)；内部结构需要靠"假设—计算—比较"的逆问题求解。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>三个引擎 = 同一逆问题的三档先验</h3>
+        <table class="data">
+          <tr><th>引擎</th><th>已知</th><th>未知</th><th>核心动作</th></tr>
+          <tr><td><b>Try1</b></td><td>仅测量（可选器件数）</td><td>数量·类型·接线·数值</td><td>枚举规范 SP 树 + Foster 辅助，逐模型拟合</td></tr>
+          <tr><td><b>Try2</b></td><td>器件类型·数量·数值</td><td>接线（二端多重图）</td><td>枚举全部非同构图，逐图评价</td></tr>
+          <tr><td><b>Try3</b></td><td>拓扑·边类型</td><td>元件数值</td><td>归约 + 多起点局部拟合 + 可辨识性诊断</td></tr>
+        </table>
+        <div class="small" style="margin-top:6px">变体：Try2-Tolerance（标称值±容差内精调）、内部 Try2.5（已知类型数量、宽箱拟合）。</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="figwrap"><img class="fig" src="assets/figs/fig-overview.png"></div>
+      <div class="note blue">不管怎么"猜"，每个候选电路最终都代入<b>同一个前向方程</b>算出 \(Z(f)\)，再与测量比较——这是三个引擎共享的数学骨架。</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 18</span></div>
+</section>
+
+<!-- ================= 3 · circuit as graph ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Unified Forward Model</div>
+    <h1 class="title">核心抽象：电路 = 多重图</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>图论语言</h3>
+        <ul class="tight">
+          <li><b>顶点</b> = 电气连接点；<b>边</b> = 一个元件；端口固定为节点 0 / 1。</li>
+          <li>允许<b>重边</b>（同节点对多个元件 = 并联），不允许自环；无互感、无受控源。</li>
+          <li>电感绑定直流电阻：\(L{+}R_d\) 是一个器件、最多两个参数；\(R_d\ge 0\) 可精确为零。</li>
+        </ul>
+      </div>
+      <div class="fbox">
+        取 \(s=j2\pi f\)，元件阻抗与导纳：
+        \[
+        z_R=R,\qquad z_C=\frac{1}{sC},\qquad z_L=R_d+sL,
+        \qquad y_e=\frac{1}{z_e}
+        \]
+      </div>
+      <div class="note">有了这一层抽象，"搜索电路结构"就变成<b>搜索图</b>：Try1/Try2 的离散部分都在图的组合空间上进行。</div>
+    </div>
+    <div class="col">
+      <div class="figwrap"><img class="fig" src="assets/figs/fig-graph.png"></div>
+      <div class="small" style="text-align:center">示例：3 节点、3 条边 \(L\parallel(R+C)\) 的图与它的节点导纳矩阵</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 18</span></div>
+</section>
+
+<!-- ================= 4 · stamp ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Unified Forward Model</div>
+    <h1 class="title">前向模型 I：每条边向 \(Y\) "盖一次章"</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>边的 stamp（导纳 \(y\)，端点 \(u,v\)）</h3>
+        <div class="fbox">
+          \[
+          Y_{uu}\mathrel{+}=y,\qquad Y_{vv}\mathrel{+}=y,\qquad
+          Y_{uv}\mathrel{-}=y,\qquad Y_{vu}\mathrel{-}=y
+          \]
+        </div>
+        <ul class="tight">
+          <li>地（端口 0）电压恒为 0：<b>不进入未知量</b>，只盖非地端的对角元。</li>
+          <li>写成矩阵语言：\(Y(s)=\sum_e y_e(s)\,a_e a_e^{\mathsf T}\)，其中 \(a_e\) 在 \(u\) 处 \(+1\)、\(v\) 处 \(-1\)——<b>每加一个元件 = 给 \(Y\) 加一个秩 1 矩阵</b>。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>最小例子：节点 1、2 之间一条电阻 \(R\)，\(g=1/R\)</h3>
+        \[
+        Y=\begin{bmatrix} g & -g\\ -g & g\end{bmatrix}
+        \qquad\text{——再复杂的图也只是"多盖几次章"}
+        \]
+      </div>
+    </div>
+    <div class="col narrow">
+      <div class="card" style="flex:1">
+        <h3>为什么用节点导纳矩阵</h3>
+        <ul class="tight">
+          <li>KCL 的直接离散形式，组装是<b>局部、可加</b>的。</li>
+          <li>串并联公式只是它在特殊拓扑下的化简结果；节点法天然处理<b>桥式、重边、任意小型图</b>——这正是 Try2 能搜索桥式网络的原因。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 18</span></div>
+</section>
+
+<!-- ================= 5 · Z = b'Y^-1 b ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Unified Forward Model</div>
+    <h1 class="title">前向模型 II：端口阻抗 \(Z=b^{\mathsf T}Y^{-1}b\)</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>四步推导（单位电流激励）</h3>
+        <ul class="tight">
+          <li>端口 0 接地；向端口 1 强制注入 \(1\,\mathrm{A}\)：右端 \(b=e_1\)（端口 1 对应的单位向量）。</li>
+          <li>KCL 矩阵形式：\(Yv=b\)，解得 \(v=Y^{-1}b\)。</li>
+          <li>因为 \(I_{\text{port}}=1\,\mathrm{A}\)，端口阻抗就是端口电压：\(Z=V_1\)。</li>
+        </ul>
+        <div class="fbox">
+          \[
+          Z \;=\; V_1 \;=\; b^{\mathsf T}v \;=\; b^{\mathsf T}Y^{-1}b
+          \]
+        </div>
+      </div>
+      <div class="card">
+        <h3>手算验证：\(R\)–\(C\) 串联（故意不用串联公式）</h3>
+        未知节点 \(\{1,2\}\)，\(g=1/R,\;y_C=j\omega C\)：
+        \[
+        Y=\begin{bmatrix} g & -g\\ -g & g+y_C\end{bmatrix},\quad
+        b=\begin{bmatrix}1\\0\end{bmatrix}
+        \;\Rightarrow\;
+        Z=\frac{g+y_C}{g\,y_C}=R+\frac{1}{j\omega C}\;\checkmark
+        \]
+      </div>
+    </div>
+    <div class="col narrow">
+      <div class="card" style="flex:1">
+        <h3>数值可靠性（nodal.cpp）</h3>
+        <ul class="tight">
+          <li>矩阵按最大模缩放后 FullPivLU 求解。</li>
+          <li>报告<b>有效 rcond</b>（含装配级 LC 导纳相消，一维矩阵的普通条件数恒为 1、查不出这类风险）与后向误差 \(\|Yv-b\|/(\|Y\|\|v\|+\|b\|)\)。</li>
+          <li>状态机：OK / PORT_OPEN / SINGULAR / ILL_CONDITIONED / NONFINITE——<b>不用巨大哨兵值掩盖失败</b>。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 18</span></div>
+</section>
+
+<!-- ================= 6 · residual & metrics ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Fitting Objective</div>
+    <h1 class="title">拟合与测量的差距怎么量化：残差、wRMSE 与 AICc</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>白化相对残差（默认噪声模型）</h3>
+        <div class="fbox">
+          \[
+          z_{\text{floor}}=\max\!\bigl(10^{-15},\;10^{-9}\,\mathrm{median}|Z_k|\bigr),\qquad
+          r_k=\frac{\begin{bmatrix}\mathrm{Re}(\hat Z_k-Z_k)\\[2pt] \mathrm{Im}(\hat Z_k-Z_k)\end{bmatrix}}{\max(|Z_k|,\,z_{\text{floor}})}
+          \]
+        </div>
+        <ul class="tight">
+          <li>目标函数 \(J=\sum_k\|r_k\|^2\)（相对加权：\(1\,\mathrm{k\Omega}\) 与 \(1\,\mathrm{\Omega}\) 的数据同等对待；近零保护防除零）。</li>
+          <li>报告指标：<b>wRMSE</b> \(=\sqrt{\overline{\|r_k\|^2}}\)（整体相对误差）与 <b>maxRel</b>（最差点）；可选逐点协方差做 GLS。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>复杂度惩罚：AICc（小样本修正 AIC）</h3>
+        <div class="fbox">
+          \[
+          \mathrm{AICc}=n\log\!\bigl(\max(J/n,10^{-300})\bigr)+2k+\frac{2k(k+1)}{n-k-1},
+          \qquad n=2M,\;k=p+1
+          \]
+        </div>
+        <div class="small">观测数 \(n\) 是 \(2M\) 个实分量；\(p\) 为自由电参数数，\(+1\) 是未知的共同方差。参数越多惩罚越重，防止"多加元件总能更低残差"的过拟合。</div>
+      </div>
+    </div>
+    <div class="col narrow">
+      <div class="card" style="flex:1">
+        <h3>鲁棒选项（只影响拟合权重）</h3>
+        <ul class="tight">
+          <li>Huber IRLS：对白化残差范数取 \(2.5\times\)中位数为阈值降权，至多 3 轮，要求过半点保持内点。</li>
+          <li>原始相对权重的 wRMSE / maxRel <b>始终照常报告</b>，异常点不从报告中消失。</li>
+          <li>robust 运行不参与 AICc 校准选择，按 RSS 诊断回退排序。</li>
+        </ul>
+      </div>
+      <div class="note green">这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 18</span></div>
+</section>
+
+<!-- ================= 7 · try3 part 1 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Try3 · 已知拓扑，反求数值</div>
+    <h1 class="title">最优元件数值怎么算（I）：参数化、初值与多起点</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>优化坐标：让数量级成为"平移"</h3>
+        <ul class="tight">
+          <li>正参数 R/L/C 用对数坐标 \(x=\log_{10}q\)，链式因子 \(\ln 10\cdot q\)；跨 10 个数量级的搜索变成均匀空间。</li>
+          <li>DCR 用缩放线性非负坐标 \(x=R_d/z_{\text{scale}}\)，\(z_{\text{scale}}=\max(10^{-9},\mathrm{median}|Z|)\)——<b>可以精确到达 0</b>（softplus 做不到，故不采用）。</li>
+          <li>箱约束显式投影：默认 \(R\in[10^{-3},10^{7}]\,\Omega\)、\(L\in[10^{-10},10]\,\mathrm{H}\)、\(C\in[10^{-13},10^{-3}]\,\mathrm{F}\)、\(R_d\in[0,10^{7}]\,\Omega\)。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>物理尺度初值（不靠运气起步）</h3>
+        <div class="fbox">
+          \[
+          \omega_c=2\pi\sqrt{f_{\min}f_{\max}},\qquad
+          R_0=z_{\text{scale}},\quad L_0=\frac{z_{\text{scale}}}{\omega_c},\quad
+          C_0=\frac{1}{z_{\text{scale}}\,\omega_c},\quad R_{d,0}=0.1\,z_{\text{scale}}
+          \]
+        </div>
+        <div class="small">"中位阻抗 × 频带几何中心"给出各类型元件的正确量级——如 \(|Z|\sim1\,\mathrm{k\Omega}\)、\(f_c\sim1\,\mathrm{kHz}\) 时 \(C_0\sim0.16\,\mu\mathrm{F}\)。</div>
+      </div>
+    </div>
+    <div class="col narrow">
+      <div class="card" style="flex:1">
+        <h3>确定性多起点</h3>
+        <ul class="tight">
+          <li>默认 <b>16 个起点 × 160 轮</b>，随机种子固定 1——结果完全可复现。</li>
+          <li>起点 0 = 物理尺度初值；其余在对数坐标上加 \(\pm2.5\) 个数量级的均匀抖动（容差模式则在箱内均匀采样）。</li>
+          <li>DCR 每 4 个起点强制一次 0 初值（零 DCR 是常见真相）。</li>
+          <li>取全部起点的最优；"多少起点收敛到同一解"（agreeingStarts）本身是诊断量。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 18</span></div>
+</section>
+
+<!-- ================= 8 · try3 part 2 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Try3 · 已知拓扑，反求数值</div>
+    <h1 class="title">最优元件数值怎么算（II）：解析灵敏度 + Levenberg–Marquardt</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>解析 Jacobian：对 \(Yv=b\) 微分（普通转置，非共轭）</h3>
+        <div class="fbox">
+          \[
+          \frac{\partial Z}{\partial q_e}=-\frac{\partial y_e}{\partial q_e}\,\bigl(V_u-V_v\bigr)^{2},
+          \qquad
+          \partial_R y=-\tfrac{1}{R^2},\;\; \partial_C y=s,\;\;
+          \partial_L y=\tfrac{-s}{(R_d+sL)^2},\;\; \partial_{R_d} y=\tfrac{-1}{(R_d+sL)^2}
+          \]
+        </div>
+        <ul class="tight">
+          <li>直觉：元件两端电压差 \(\approx 0\;\Rightarrow\;\partial Z/\partial q\approx 0\)——端口"看不见"它，也就无法从端口数据确定它（<b>可辨识性</b>的根源）。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>阻尼最小二乘步（增广方程，SVD 直接求解）</h3>
+        <div class="fbox">
+          \[
+          \min_{\Delta}\left\|
+          \begin{bmatrix} J\\ \sqrt{\lambda}\,D\end{bmatrix}\Delta+
+          \begin{bmatrix} r\\ 0\end{bmatrix}
+          \right\|_2,
+          \qquad D_{jj}=\max\!\bigl(10^{-8},\|J_{:j}\|\bigr)
+          \]
+        </div>
+        <ul class="tight">
+          <li>JacobiSVD 解增广最小二乘，<b>不形成法方程</b> \(J^{\mathsf T}J\)（避免平方条件数）。</li>
+          <li>信赖域：单坐标最大步长 2（对数坐标下约 100 倍），越界投影回箱。</li>
+          <li>\(\lambda\) 自适应：初始 \(10^{-3}\)，成功 \(/3\)、失败 \(\times 10\)；\(\lambda>10^{14}\) 判停滞。</li>
+          <li>终止：缩放梯度 \(&lt;10^{-10}\) / 代价 \(&lt;10^{-24}\) / 增益微小 / 迭代上限——状态显式输出。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col narrow">
+      <div class="card" style="flex:1">
+        <h3>一轮迭代的闭环</h3>
+        <div class="flowline" style="flex-direction:column; align-items:stretch; gap:6px">
+          <div class="flowstep">当前参数 \(x\) → 组装 \(Y(f_k)\)</div>
+          <div class="flowarrow" style="align-self:center">↓</div>
+          <div class="flowstep">解 \(Yv=b\)，得 \(Z\)、残差 \(r\)、Jacobian \(J\)</div>
+          <div class="flowarrow" style="align-self:center">↓</div>
+          <div class="flowstep">SVD 解 LM 步 → 投影 → 试探</div>
+          <div class="flowarrow" style="align-self:center">↓</div>
+          <div class="flowstep">更优则接受、\(\lambda\!/3\)；否则 \(\lambda\times10\)</div>
+        </div>
+        <div class="small" style="margin-top:8px">全部频点共用同一次 Jacobian 装配；病态求值（Reject 级）直接判该起点数值失败，不产出假结果。</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 18</span></div>
+</section>
+
+<!-- ================= 9 · try3 part 3 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Try3 · 已知拓扑，反求数值</div>
+    <h1 class="title">Try3 全流程与可辨识性诊断</h1>
+  </div>
+  <div class="cols" style="font-size:15px">
+    <div class="col wide">
+      <div class="card" style="padding:10px 16px">
+        <h3>拟合前：把"端口看不见的东西"精确归约掉</h3>
+        <div class="flowline">
+          <div class="flowstep">R0 死区删除</div><div class="flowarrow">→</div>
+          <div class="flowstep">精确串并联归约</div><div class="flowarrow">→</div>
+          <div class="flowstep">域传播</div><div class="flowarrow">→</div>
+          <div class="flowstep">聚合群上共享拟合</div>
+        </div>
+        <ul class="tight" style="margin-top:6px">
+          <li>死区：仅经一个割点挂接且不含另一端口的子网络，对 \(Z\) 无贡献（如悬挂三角形）。</li>
+          <li>恒等归约：并联 R 倒数和 / 并联 C 求和；串联同类相加；串联 R 折入 L 的 DCR；<b>不合并并联 L+DCR</b>。</li>
+          <li>归约群允许域按表达式单调传播（两个 rMax 串联可达 \(2\,r_{\max}\)，不被单器件箱误删）。</li>
+        </ul>
+      </div>
+      <div class="card" style="padding:10px 16px">
+        <h3>拟合后：可辨识性诊断（而不是"猜完了就完了"）</h3>
+        <ul class="tight">
+          <li>加权实 Jacobian 的 SVD：数值秩、奇异值、条件数——满列秩支持<b>局部可辨识</b>；单点秩亏不自动证明全局参数族。</li>
+          <li>弹性度 \(\max_f |q\,\partial Z/\partial q|/|Z|&lt;0.1\) 标记 weak；atBound、多起点一致性（agreeingStarts）单独报告。</li>
+          <li>条件满足时给线性化 SE 与 95% 区间：\(C_x=V\,\mathrm{diag}(\sigma_i^{-2})V^{\mathsf T}\cdot\frac{J}{n-p}\)，对数坐标经 \(10^{x}\) 映射回物理单位。</li>
+          <li>结论分级：IDENTIFIABLE_LOCAL / AMBIGUOUS_EQUIVALENCE_CLASS / NUMERICALLY_UNSTABLE / DATA_INSUFFICIENT / LOCAL_FIT_UNCONFIRMED。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="figwrap"><img class="fig" src="assets/figs/fig-ident.png" style="max-height:316px"></div>
+      <div class="note" style="font-size:13.5px">真实案例 data4：rank 5/5、条件数 32.8、9/16 起点一致——局部可辨识；但 \(R_1\) 回收 138 Ω，CI [132.6, 144.1] <b>不含标称 200 Ω</b>：并联槽路阻尼由 \(R_1\) 与 L 的 DCR 强相关地共同提供。</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 18</span></div>
+</section>
+
+<!-- ================= 10 · try2 part 1 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Try2 · 已知器件，搜索接线</div>
+    <h1 class="title">图怎么搜（I）：有限空间的完整枚举</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>节点数范围</h3>
+        <div class="fbox">
+          \[
+          \text{连通且含两端口}\;\Longleftrightarrow\;
+          2\le V\le E+1
+          \qquad\bigl(E\ge V-1\bigr)
+          \]
+        </div>
+        <ul class="tight">
+          <li>\(V\) 个节点的连通图至少 \(V-1\) 条边；两个端口本身就要 2 个节点。</li>
+          <li>固定 \(V\) 后：\(\binom{V}{2}\) 个<b>节点对槽位</b>，\(E\) 条边 = 槽位上大小为 \(E\) 的多重集，例如 \(V{=}3\)：\(m_{01}+m_{02}+m_{12}=E\)。</li>
+          <li>DFS 取槽位时允许重复取同一槽 → <b>天然支持并联重边</b>；不允许自环。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>剪掉重复与无效：规范化（canonicalization）</h3>
+        <ul class="tight">
+          <li>结构过滤：无孤立节点；<b>活动性</b>检查（所有元件必须端口连通，完整割点死区直接排除）。</li>
+          <li>内部节点重命名与互易端口交换不改变电路 → 枚举全部置换，取<b>字典序最小签名</b>作为"身份证"去重（同一电路只算一次）。</li>
+          <li>器件赋值：把已知的 \(E\) 个器件排到边上，跳过相同器件的重复排列，带值图再做一次规范化去重。</li>
+          <li>支持 \(E\le 8\)，包含桥式与重边；组合数随 \(E\) 急增（\(E{=}7\) 已到百万级）。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="figwrap"><img class="fig" src="assets/figs/fig-funnel.png"></div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 18</span></div>
+</section>
+
+<!-- ================= 11 · try2 part 2 ================= -->
+<section class="slide compact">
+  <div class="titlebar">
+    <div class="kicker">Try2 · 已知器件，搜索接线</div>
+    <h1 class="title">图怎么搜（II）：评价、排序与实测验证</h1>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <div class="card">
+        <h3>Exact 模式（默认）：固定参数，只比接线</h3>
+        <ul class="tight">
+          <li>每个候选图在<b>全部频点</b>上前向求值（0 个自由参数），按共同 RSS 目标排序。</li>
+          <li>Top-K：按观测频点数值等价（默认容差 \(10^{-6}\)）聚类，每类给一个代表元。</li>
+          <li><b>条件最优证书</b>：枚举完整 + 无数值失败 ⇔ 可声明"该有限空间的全局最优"；连续参数拟合则永远只是局部方法。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Tolerance 模式：标称值 ± 容差内精调</h3>
+        <ul class="tight">
+          <li>显式给出百分比容差（DCR 可另加绝对容差）才启用；每图调用公共局部优化器。</li>
+          <li>每个元件保持物理身份与自己的容差箱；标称零 DCR 无绝对容差则<b>固定为零</b>（独立参数状态，不算触界）。</li>
+        </ul>
+      </div>
+      <div class="note blue" style="font-size:13.5px">实测 data4（R/L/C/R 四器件）：857 种组合 → 11 种结构 → <b>98 个候选全部评价，rank-1 恰为真实接线</b>；标称值 wRMSE 5.26%（元件容差），拟合后 0.50% →</div>
+    </div>
+    <div class="col wide">
+      <div class="figwrap"><img class="fig" src="assets/figs/try3-data4-4.png"></div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 18</span></div>
+</section>
+
+<!-- ================= 12 · try1 part 1 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Try1 · 一无所知，盲搜模型</div>
+    <h1 class="title">Try1（I）：规范串并联（SP）树的枚举</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>假设空间：SP 表达式树</h3>
+        <ul class="tight">
+          <li>叶子 = 器件 R / C / L(+DCR)；内部节点只有 SER（串联）与 PAR（并联）两种运算。</li>
+          <li>逐层递归构造：\(n\) 个器件的树由"器件数拆分 + 交替运算"组合而成，子树类型必须与父节点不同（S 下不再套 S），深度 ≤ maxDepth。</li>
+        </ul>
+        <div class="fbox">
+          \[
+          Z_S=\sum_i Z_i,\qquad
+          Z_P=\Bigl(\sum_i \frac{1}{Z_i}\Bigr)^{-1}
+          \quad\text{——树自叶向根即可算 } Z
+          \]
+        </div>
+      </div>
+      <div class="card" style="padding:11px 16px; font-size:15px">
+        <h3>规范化规则：同一电路只留一棵树</h3>
+        <ul class="tight">
+          <li>同运算扁平化：\(S(S(a,b),c)\to S(a,b,c)\)；子树按规范键排序。</li>
+          <li>不生成可直接归约的结构：SER 下同类叶、SER 下 \(R{+}L\)（折入 DCR）；PAR 下同类 R/C 不生成，但<b>保留并联 L</b>（不同 DCR 时间常数不可合并）。</li>
+          <li>默认 maxN=4、maxDepth=4：<b>130 棵规范树</b>（n=1..4，真实运行计数）；exactN 可锁定器件数层。</li>
+          <li>"器件数"是<b>规范不可约等效模型</b>的器件数，不是 PCB 物理封装数。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="figwrap"><img class="fig" src="assets/figs/fig-sptree.png"></div>
+      <div class="note green">每棵树 expand 成图（SER 链生成内部节点）后，进入<b>同一个</b> \(Z=b^{\mathsf T}Y^{-1}b\) 前向求值与共享拟合——Try1 的"猜测"与 Try2/Try3 的"计算"无缝衔接。</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 18</span></div>
+</section>
+
+<!-- ================= 13 · try1 part 2 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Try1 · 一无所知，盲搜模型</div>
+    <h1 class="title">Try1（II）：有理拟合 → Foster 辅助候选</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <h3>辅助路径：从数据直接综合出候选电路</h3>
+        <ul class="tight">
+          <li>尺度化（\(s/\omega_0\)、\(Z/Z_0\)，\(\omega_0\) 取频带几何中心）后做<b>实系数有理最小二乘</b>。</li>
+          <li>解分母校正后用<b>特征值重定位</b>移动极点，再重拟合留数（vector fitting 思想的实数基版本）。</li>
+          <li>稳定极点 ≠ 无源性：<b>只接纳能显式综合为正值器件的 Foster 类</b>实现。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>两个被接纳的综合单元（归一化坐标，含尺度恢复）</h3>
+        <div class="fbox">
+          \[
+          \frac{K}{s+a}=R\parallel C:\;\; R=\frac{K}{a},\;C=\frac{1}{K}
+          \qquad\qquad
+          \frac{Ks}{s^2+as+b}=R\parallel L\parallel C:\;\; R=\frac{K}{a},\;L=\frac{K}{b},\;C=\frac{1}{K}
+          \]
+        </div>
+        <ul class="tight">
+          <li>综合出的候选必须通过<b>共享前向模型的一致性核对</b>，再进入公共参数精调与统一排序。</li>
+          <li>综合失败只是丢弃该辅助候选，<b>绝不删除 SP 假设</b>（不因辅助路径失败而漏掉合法模型）。</li>
+          <li>输出族 family=<code class="mono">NORMALIZED_SP_PLUS_FOSTER</code>；辅助候选同样受器件数约束。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col narrow">
+      <div class="card" style="flex:1">
+        <h3>定位与边界</h3>
+        <ul class="tight">
+          <li>这是一个<b>明确的 Foster 子族</b>，不是任意正实函数的通用综合（不含 Cauer/Brune）。</li>
+          <li>SP 离散枚举完整 ≠ 连续内层全局最优；也不宣称真实桥式结构一定在假设空间内。</li>
+          <li>Strict 模式不做未证明安全的"有限频带斜率删枝"。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 18</span></div>
+</section>
+
+<!-- ================= 14 · selection ================= -->
+<section class="slide compact">
+  <div class="titlebar">
+    <div class="kicker">Model Selection</div>
+    <h1 class="title">模型选择：三层资格分层 + Top-K 行为等价类</h1>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <div class="card">
+        <h3>候选三层（谁的 AICc 才算数）</h3>
+        <table class="data">
+          <tr><th>层</th><th>条件</th><th>排序依据</th></tr>
+          <tr><td><span class="tag b">primary</span></td><td>AICc 有效 · 收敛 · 非 robust · 满秩 · 无触界</td><td>AICc，展示<b>校准 ΔAICc</b></td></tr>
+          <tr><td><span class="tag o">provisional</span></td><td>未收敛但其余正则</td><td>按当前 AICc 参与排序，Δ 不展示</td></tr>
+          <tr><td><span class="tag r">diagnostic</span></td><td>AICc 无效 / robust / 秩亏 / 触界</td><td>按原始 RSS 排在全部 primary 之后</td></tr>
+        </table>
+        <div class="small" style="margin-top:6px">单个过参数候选的 AICc 失效只降级它自己，不再拖累整组；无 primary 或 robust 运行 → <code class="mono">RSS_DIAGNOSTIC_FALLBACK</code>（明确标记"非校准选择"）。</div>
+      </div>
+      <div class="card">
+        <h3>Top-K = 行为等价类，不是 K 个电路</h3>
+        <ul class="tight">
+          <li>两个候选在<b>全部观测频点</b>上 \(|\hat Z_a-\hat Z_b|\le\varepsilon\max(\cdot)\)（默认 \(10^{-6}\)）→ 同一类，只输出代表元并计成员数。</li>
+          <li>等价声明是 <b>observed-grid（观测频点数值等价）</b>，不是符号恒等，也不是连续频带等价。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col wide">
+      <div class="figwrap"><img class="fig" src="assets/figs/try1-data2-2.png" style="max-height:330px"></div>
+      <table class="data" style="margin-top:2px; font-size:14px">
+        <tr><th>rank</th><th>模型（data2 盲搜）</th><th class="num">器件</th><th class="num">wRMSE</th><th class="num">AICc</th><th class="num">ΔAICc</th></tr>
+        <tr><td>1</td><td>\(L\parallel((R\parallel C)+R')\)</td><td class="num">4</td><td class="num">0.90%</td><td class="num">−390.0</td><td class="num">0</td></tr>
+        <tr><td>3</td><td>\((L{+}DCR)\parallel C\) 加小串联修正</td><td class="num">4</td><td class="num">0.96%</td><td class="num">−385.2</td><td class="num">4.8</td></tr>
+        <tr><td>5</td><td>\(C\parallel L(+DCR)\parallel R\)</td><td class="num">3</td><td class="num">1.18%</td><td class="num">−371.4</td><td class="num">18.6</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">14 / 18</span></div>
+</section>
+
+<!-- ================= 15 · results 1 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Validation · Real Data</div>
+    <h1 class="title">实测拟合效果 I：Try3 · data2 = (DCR+L) ∥ C</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="figwrap"><img class="fig" src="assets/figs/try3-data2-2.png"></div>
+    </div>
+    <div class="col narrow">
+      <div class="card">
+        <h3>回收参数（20 个频点，3 自由参数）</h3>
+        <table class="data">
+          <tr><th>参数</th><th class="num">拟合值</th><th class="num">95% CI</th><th class="num">标称</th></tr>
+          <tr><td>L</td><td class="num">100.9 mH</td><td class="num">[98.7, 103.1]</td><td class="num">100 mH</td></tr>
+          <tr><td>DCR</td><td class="num">334.7 Ω</td><td class="num">[331.9, 337.5]</td><td class="num">345 Ω</td></tr>
+          <tr><td>C</td><td class="num">0.949 µF</td><td class="num">[0.942, 0.957]</td><td class="num">1 µF</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3>质量指标</h3>
+        <ul class="tight">
+          <li>wRMSE = <b>1.90%</b>，maxRel = 3.87%</li>
+          <li>Jacobian 满秩 → <b>IDENTIFIABLE_LOCAL</b></li>
+          <li>约 500 Hz 处并联谐振（\(Q\approx0.9\)）被完整捕获</li>
+        </ul>
+      </div>
+      <div class="note">回收值与标称的偏差来自元件容差（C 实际 ≈0.95 µF）——评价拟合应与独立复核的"回收真值"而非标称比较。</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">15 / 18</span></div>
+</section>
+
+<!-- ================= 16 · results 2 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Validation · Real Data</div>
+    <h1 class="title">实测拟合效果 II：噪声数据与四组总表</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="figwrap"><img class="fig" src="assets/figs/try3-data3-3.png"></div>
+      <div class="small" style="text-align:center;margin-top:2px">data3（40 点，含明显噪声）：wRMSE 2.12%，逐点相对误差基本落在 ±4% 内</div>
+    </div>
+    <div class="col narrow">
+      <div class="card">
+        <h3>四组实测 · rank-1 wRMSE（%）</h3>
+        <table class="data">
+          <tr><th>数据</th><th class="num">Try1</th><th class="num">Try2 Exact*</th><th class="num">Try2 Tol†</th><th class="num">Try3</th></tr>
+          <tr><td>data1 R∥C</td><td class="num">0.53</td><td class="num">2.34</td><td class="num">0.92</td><td class="num">0.92</td></tr>
+          <tr><td>data2 (r+L)∥C</td><td class="num">0.90</td><td class="num">5.61</td><td class="num">1.90</td><td class="num">1.90</td></tr>
+          <tr><td>data3 ((r+L)∥C₁)+C₂</td><td class="num">1.47</td><td class="num">6.36</td><td class="num">2.12</td><td class="num">2.12</td></tr>
+          <tr><td>data4 R₂+(R₁∥L∥C)</td><td class="num">0.50</td><td class="num">5.26</td><td class="num">0.50</td><td class="num">0.50</td></tr>
+        </table>
+        <div class="small" style="margin-top:5px">*Exact 用标称值评价（无自由参数）†±10% 容差。固定种子随机基准 40 例：行为 pass@1 35/40，pass@8 39/40。</div>
+      </div>
+      <div class="note green">Try1（盲搜）达到甚至优于带标称值先验的 Try2——AICc 分层 + 多起点局部拟合的组合在观测频带内足够锋利；Try2 Exact 的差距纯粹来自元件容差。</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">16 / 18</span></div>
+</section>
+
+<!-- ================= 17 · honest boundaries ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Honest Boundaries</div>
+    <h1 class="title">哪些结论不能宣称（以及为什么）</h1>
+  </div>
+  <div class="cols">
+    <div class="col wide">
+      <div class="card">
+        <ul class="tight">
+          <li><b>端口行为 ≠ 物理内部。</b>单端口测量首先辨识 \(Z(s)\)，再找它的一个实现：\(R_1{+}R_2\) 与等值 R、\(R{+}(R_d{+}sL)\) 与等值 L+DCR 永远不可区分；exactN 是等效模型器件数，不是 BOM 数。</li>
+          <li><b>行为等价是数值的、局部的。</b>observed-grid 等价只在观测频点上成立；不同拓扑可以有几乎相同的驱动点阻抗。实测例：Try1 在 data4 的 rank-1 为 \(R{+}\bigl(L\parallel(C{+}R')\bigr)\)，与真值 \(R_2{+}(R_1\parallel L\parallel C)\) 结构不同、wRMSE 同为 0.50%。</li>
+          <li><b>局部最优无全局证书。</b>多起点只能提高可信度（agreeingStarts 是诊断），不能证明连续参数全局最优；Try2.5/Tolerance/连续拟合一律 continuous_global_certified=false。</li>
+          <li><b>满秩 ≠ 唯一。</b>正则内点满列秩只支持局部可辨识；单点秩亏也不自动证明存在全局连续参数族。weak 弹性度是经验阈值。</li>
+          <li><b>数值诊断不是误差界。</b>rcond/后向误差是浮点可靠性诊断；AICc 在非线性、有界、系统误差场景只是近似诊断，不是校准的模型概率。</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col narrow">
+      <div class="card" style="flex:1">
+        <h3>成果如何如实呈现</h3>
+        <ul class="tight">
+          <li>Top-K 输出<b>行为等价类</b>代表元与成员数，而非"唯一电路"。</li>
+          <li>每个候选携带自己的诊断（收敛、秩、边界、数值状态）。</li>
+          <li>枚举完成 / 预算耗尽 / 数值警告在运行级分开标记。</li>
+          <li>失败与部分结果显式暴露，不用哨兵值掩盖。</li>
+        </ul>
+      </div>
+      <div class="note">这套"诚实边界"本身就是设计目标的一部分：让使用者知道每个数字的可信度层级。</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">17 / 18</span></div>
+</section>
+
+<!-- ================= 18 · summary ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">Summary</div>
+    <h1 class="title">总结：一条管线，三档先验</h1>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:16px; flex:1">
+    <div class="card">
+      <h3>统一管线（三个引擎共享同一个数学实现）</h3>
+      <div class="flowline" style="justify-content:center">
+        <div class="flowstep">测量 \(Z(f_k)\)</div><div class="flowarrow">→</div>
+        <div class="flowstep">候选 \((G,\theta)\)</div><div class="flowarrow">→</div>
+        <div class="flowstep">stamp 组装 \(Y(s)\)</div><div class="flowarrow">→</div>
+        <div class="flowstep">\(Z_{\text{calc}}=b^{\mathsf T}Y^{-1}b\)</div><div class="flowarrow">→</div>
+        <div class="flowstep">白化残差 \(r_k\)</div><div class="flowarrow">→</div>
+        <div class="flowstep">\(J=\sum\|r_k\|^2\)</div><div class="flowarrow">→</div>
+        <div class="flowstep">搜索 / LM 优化</div><div class="flowarrow">→</div>
+        <div class="flowstep">分层排序 Top-K + 诊断</div>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="col">
+        <div class="card">
+          <h3>三个关键公式</h3>
+          <div class="fbox">
+            \[
+            Z=b^{\mathsf T}Y^{-1}b,\qquad
+            \frac{\partial Z}{\partial q_e}=-\frac{\partial y_e}{\partial q_e}(V_u-V_v)^2
+            \]
+            \[
+            \mathrm{AICc}=n\log(J/n)+2k+\frac{2k(k+1)}{n-k-1}
+            \]
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <h3>三个引擎一句话</h3>
+          <ul class="tight">
+            <li><b>Try1</b>：枚举规范 SP 树 + Foster 辅助——结构、类型、数值全要猜。</li>
+            <li><b>Try2</b>：器件已知，完整枚举非同构多重图——结构猜完直接比。</li>
+            <li><b>Try3</b>：结构已知，归约 + 解析灵敏度 LM——把数值钉到最优点并给出可辨识性诊断。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="note blue" style="text-align:center;font-size:15.5px">
+      每猜出一个候选电路，判断方法永远一样：灌 1 A 电流 → 解 \(Yv=b\) → \(Z=V_1\) → 与测量比较。
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">18 / 18</span></div>
+</section>
+
+</body>
+</html>
