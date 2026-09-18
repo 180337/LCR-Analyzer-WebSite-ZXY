@@ -606,8 +606,6 @@ code.mono {
         <ul class="tight">
           <li>同运算扁平化：\(S(S(a,b),c)\to S(a,b,c)\)；子树按规范键排序。</li>
           <li>不生成可直接归约的结构：SER 下同类叶、SER 下 \(R{+}L\)（折入 DCR）；PAR 下同类 R/C 不生成，但<b>保留并联 L</b>（不同 DCR 时间常数不可合并）。</li>
-          <li>默认 maxN=4、maxDepth=4：<b>130 棵规范树</b>（n=1..4，真实运行计数）；exactN 可锁定器件数层。</li>
-          <li>"器件数"是<b>规范不可约等效模型</b>的器件数，不是 PCB 物理封装数。</li>
         </ul>
       </div>
     </div>
