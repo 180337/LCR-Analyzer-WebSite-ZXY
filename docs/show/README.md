@@ -1,10 +1,10 @@
 # docs/show — Try1–Try3 算法理论讲解幻灯
 
-当前在线展示版为 18 页、16:9 的 HTML 幻灯，聚焦 LCR 辨识算法的理论部分：
+当前在线展示版为 14 页、16:9 的 HTML 幻灯，聚焦 LCR 辨识算法的理论部分：
 统一前向模型（电路 = 图、stamp、\(Z=b^{\mathsf T}Y^{-1}b\)）、误差度量（白化残差 / WRMSE / MAXREL / AICc）、
 Try3 的最优数值计算（解析灵敏度 + Levenberg–Marquardt + 可辨识性诊断）、
-Try2 的图搜索（槽位多重集枚举 + 规范化去重）、Try1 的规范 SP 树枚举、
-模型选择分层与诚实边界。所有拟合曲线与数字均来自 v4.1.2 原生 CLI 对
+Try2 的图搜索（槽位多重集枚举 + 规范化去重）、Try1 的规范 SP 树枚举。
+展示中的实测验证数字来自 v4.1.2 原生 CLI 对
 `examples/data1..4.csv` 真实测量数据的实际运行（拟合 JSON 存于 `/tmp/lcr-show/`，可复现命令见下文）。
 
 ## 在线展示
@@ -40,12 +40,8 @@ chrome --headless=new --no-pdf-header-footer --virtual-time-budget=25000 \
 9. Try2（I）\(2\le V\le E+1\)、槽位多重集 DFS、规范化去重、枚举漏斗（E=3: 67→4→10）
 10. Try2（II）Exact 全频评价与条件最优证书、Top-K 等价类、实测 data4（98 候选 rank-1=真值）
 11. Try1 规范 SP 树枚举规则（130 棵树）与 expand-to-graph
-12. 模型选择：primary/provisional/diagnostic 三层 + ΔAICc + observed-grid 等价类
-13. 实测 I：Try3·data2 拟合曲线与参数（含 95% CI）
-14. 实测 II：噪声数据 data3、四组 × 四引擎 WRMSE 总表
-15. 结论边界：端口行为 ≠ 物理内部、局部最优、observed-grid 等价的局限
-16. 总结：统一管线 + 三个关键公式
-17. 参考文献：理论文档 [1]–[17] 全量文献/标准/技术资料；正文相关位置保留对应上标引用
+12. 总结：统一管线 + 三个关键公式
+13. 参考文献：理论文档 [1]–[17] 全量文献/标准/技术资料；正文相关位置保留对应上标引用
 
 ## 数据与图的可复现性
 
@@ -61,5 +57,5 @@ $B try2 --csv examples/data4.csv --components examples/v4/data4.components.txt -
 $B try1 --csv examples/data2.csv --max-n 4 --top-k 8 --json
 ```
 
-拟合曲线图（`figs/try*.png`、`fig-*.png`）由这些 JSON 的 `theory` 曲线与 `diagnostics`（CI、rank 等）
-经 matplotlib 绘制；总表数字与 `AlgorithmLcr/VALIDATION.md` 的 real4 基准一致。
+当前展示中的实测验证图由这些 JSON 的 `theory` 曲线与 `diagnostics` 经 matplotlib 绘制；
+图搜索与参数拟合所用数字与 `AlgorithmLcr/VALIDATION.md` 的 real4 基准保持一致。
