@@ -12,7 +12,7 @@ Try2 的图搜索（槽位多重集枚举 + 规范化去重）、Try1 的规范 
 | 版本 | 成品 | 源文件 | 重建方式 |
 |---|---|---|---|
 | HTML→PDF（精美版） | `html-to-ppt/LCR-Try1-Try3-理论.pdf` | `html-to-ppt/slides.html`（KaTeX 本地离线，`assets/`） | Chrome/Edge headless `--print-to-pdf`（页面尺寸 1280×720 px = 16:9） |
-| Beamer（学术版） | `beamer-to-ppt/LCR-Try1-Try3-理论.pdf` | `beamer-to-ppt/main.tex`（图在 `figs/`） | `tectonic main.tex`（XeTeX；中文 Fandol/文泉驿） |
+
 
 ```sh
 # HTML 版重建（任一 Chromium 系浏览器）
