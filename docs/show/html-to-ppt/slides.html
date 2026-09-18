@@ -366,16 +366,6 @@ code.mono {
         \]
       </div>
     </div>
-    <div class="col narrow">
-      <div class="card" style="flex:1">
-        <h3>数值可靠性（nodal.cpp）</h3>
-        <ul class="tight">
-          <li>矩阵按最大模缩放后 FullPivLU 求解。</li>
-          <li>报告<b>有效 rcond</b>（含装配级 LC 导纳相消，一维矩阵的普通条件数恒为 1、查不出这类风险）与后向误差 \(\|Yv-b\|/(\|Y\|\|v\|+\|b\|)\)。</li>
-          <li>状态机：OK / PORT_OPEN / SINGULAR / ILL_CONDITIONED / NONFINITE——<b>不用巨大哨兵值掩盖失败</b>。</li>
-        </ul>
-      </div>
-    </div>
   </div>
   <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 19</span></div>
 </section>
