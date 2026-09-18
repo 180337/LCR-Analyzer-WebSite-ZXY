@@ -113,16 +113,21 @@ ul.tight li::marker { color: var(--accent); }
 }
 .cite a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 .metric-strip {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 8px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px;
 }
 .metric-pill {
-  display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: baseline;
-  padding: 6px 9px; border: 1px solid #bfdbfe; border-radius: 8px; background: #f8fbff;
-  font-size: 12.5px; line-height: 1.25;
+  min-width: 0; padding: 7px 10px; border: 1px solid #bfdbfe; border-radius: 8px;
+  background: #f8fbff; font-size: 12px; line-height: 1.28;
+}
+.metric-pill .metric-head {
+  display: flex; align-items: baseline; gap: 7px; margin-bottom: 2px;
 }
 .metric-pill b { color: var(--accent-dark); font-size: 13.5px; letter-spacing: .2px; }
-.metric-pill span { color: var(--ink2); font-weight: 600; }
-.metric-pill code { grid-column: 1 / -1; color: var(--muted); font-size: 11.5px; }
+.metric-pill .metric-head span { color: var(--ink2); font-weight: 600; }
+.metric-pill .metric-formula {
+  color: var(--ink); font-size: 11.8px; white-space: nowrap; margin: 1px 0 2px;
+}
+.metric-pill .metric-note { color: var(--muted); font-size: 11px; }
 .references-slide { font-size: 13px; }
 .references-slide .titlebar { margin-bottom: 11px; }
 .ref-intro { font-size: 12.5px; color: var(--muted); margin: -2px 0 8px; }
@@ -381,12 +386,24 @@ code.mono {
       </div>
       <ul class="tight">
         <li>目标函数 \(J=\sum_k\|r_k\|^2\)（相对加权：\(1\,\mathrm{k\Omega}\) 与 \(1\,\mathrm{\Omega}\) 的数据同等对待；近零保护防除零）。</li>
-        <li>报告指标：<b>WRMSE</b> \(=\sqrt{\overline{\|r_k\|^2}}\)（整体相对误差）与 <b>MAXREL</b>（最差单频点相对误差）；可选逐点协方差做 GLS。</li>
+        <li>可选逐点协方差做 GLS；下方三个指标统一用于拟合质量与模型比较。</li>
       </ul>
       <div class="metric-strip">
-        <div class="metric-pill"><b>WRMSE</b><span>整体拟合误差</span><code>field: wrmse · 越小越好</code></div>
-        <div class="metric-pill"><b>MAXREL</b><span>最坏频点误差</span><code>field: max_relative_error · 越小越好</code></div>
-        <div class="metric-pill"><b>AICc</b><span>复杂度惩罚</span><code>同一数据/似然假设下比较 · 越小越好</code></div>
+        <div class="metric-pill">
+          <div class="metric-head"><b>WRMSE</b><span>整体拟合误差</span></div>
+          <div class="metric-formula">\(\displaystyle \mathrm{WRMSE}=\sqrt{\frac{1}{M}\sum_{k=1}^{M}\|r_k\|_2^2}=\sqrt{J/M}\)</div>
+          <div class="metric-note">越小越好</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-head"><b>MAXREL</b><span>最坏频点误差</span></div>
+          <div class="metric-formula">\(\displaystyle \mathrm{MAXREL}=\max_{1\le k\le M}\|r_k\|_2\)</div>
+          <div class="metric-note">越小越好</div>
+        </div>
+        <div class="metric-pill">
+          <div class="metric-head"><b>AICc</b><span>复杂度惩罚</span></div>
+          <div class="metric-formula">\(\displaystyle \mathrm{AICc}=n\log\!\bigl(\max(J/n,10^{-300})\bigr)+2k+\frac{2k(k+1)}{n-k-1}\)</div>
+          <div class="metric-note">同一数据与似然假设下比较；越小越好</div>
+        </div>
       </div>
     </div>
     <div class="card">
