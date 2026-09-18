@@ -113,19 +113,22 @@ ul.tight li::marker { color: var(--accent); }
 }
 .cite a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 .metric-strip {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0; margin-top: 10px;
+  border: 1px solid #bfdbfe; border-radius: 10px; background: #f8fbff;
+  overflow: hidden;
 }
 .metric-pill {
-  min-width: 0; padding: 7px 10px; border: 1px solid #bfdbfe; border-radius: 8px;
-  background: #f8fbff; font-size: 12px; line-height: 1.28;
+  min-width: 0; padding: 10px 12px; font-size: 12px; line-height: 1.3;
 }
+.metric-pill + .metric-pill { border-left: 1px solid #dbeafe; }
 .metric-pill .metric-head {
-  display: flex; align-items: baseline; gap: 7px; margin-bottom: 2px;
+  display: flex; align-items: baseline; gap: 7px; margin-bottom: 5px;
 }
 .metric-pill b { color: var(--accent-dark); font-size: 13.5px; letter-spacing: .2px; }
 .metric-pill .metric-head span { color: var(--ink2); font-weight: 600; }
 .metric-pill .metric-formula {
-  color: var(--ink); font-size: 11.8px; white-space: nowrap; margin: 1px 0 2px;
+  color: var(--ink); font-size: 11.4px; line-height: 1.35; margin: 2px 0 4px;
 }
 .metric-pill .metric-note { color: var(--muted); font-size: 11px; }
 .references-slide { font-size: 13px; }
@@ -388,6 +391,7 @@ code.mono {
         <li>目标函数 \(J=\sum_k\|r_k\|^2\)（相对加权：\(1\,\mathrm{k\Omega}\) 与 \(1\,\mathrm{\Omega}\) 的数据同等对待；近零保护防除零）。</li>
         <li>可选逐点协方差做 GLS；下方三个指标统一用于拟合质量与模型比较。</li>
       </ul>
+
       <div class="metric-strip">
         <div class="metric-pill">
           <div class="metric-head"><b>WRMSE</b><span>整体拟合误差</span></div>
@@ -400,23 +404,16 @@ code.mono {
           <div class="metric-note">越小越好</div>
         </div>
         <div class="metric-pill">
-          <div class="metric-head"><b>AICc</b><span>复杂度惩罚</span></div>
+          <div class="metric-head"><b>AICc</b><span>复杂度惩罚</span><sup class="cite"><a href="#ref-13">[13]</a></sup><sup class="cite"><a href="#ref-14">[14]</a></sup></div>
           <div class="metric-formula">\(\displaystyle \mathrm{AICc}=n\log\!\bigl(\max(J/n,10^{-300})\bigr)+2k+\frac{2k(k+1)}{n-k-1}\)</div>
-          <div class="metric-note">同一数据与似然假设下比较；越小越好</div>
+          <div class="metric-note">\(n=2M,\;k=p+1\)；同一数据与似然假设下比较，越小越好</div>
         </div>
       </div>
-    </div>
-    <div class="card">
-      <h3>复杂度惩罚：AICc（小样本修正 AIC）<sup class="cite"><a href="#ref-13">[13]</a></sup><sup class="cite"><a href="#ref-14">[14]</a></sup></h3>
-      <div class="fbox">
-        \[
-        \mathrm{AICc}=n\log\!\bigl(\max(J/n,10^{-300})\bigr)+2k+\frac{2k(k+1)}{n-k-1},
-        \qquad n=2M,\;k=p+1
-        \]
+
+      <div class="note green" style="margin-top:10px">
+        这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。
       </div>
-      <div class="small">观测数 \(n\) 是 \(2M\) 个实分量；\(p\) 为自由电参数数，\(+1\) 是未知的共同方差。参数越多惩罚越重，防止"多加元件总能更低残差"的过拟合。</div>
     </div>
-    <div class="note green">这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。</div>
   </div>
   <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 13</span></div>
 </section>
