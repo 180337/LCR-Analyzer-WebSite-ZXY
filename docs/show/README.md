@@ -1,11 +1,17 @@
-# docs/show — Try1–Try3 算法理论讲解幻灯（两版）
+# docs/show — Try1–Try3 算法理论讲解幻灯
 
-两个版本内容同源（18 页，16:9），聚焦 LCR 辨识算法的理论部分：
+当前展示版为 18 页、16:9 的 HTML 幻灯，聚焦 LCR 辨识算法的理论部分：
 统一前向模型（电路 = 图、stamp、\(Z=b^{\mathsf T}Y^{-1}b\)）、误差度量（白化残差 / wRMSE / AICc）、
 Try3 的最优数值计算（解析灵敏度 + Levenberg–Marquardt + 可辨识性诊断）、
 Try2 的图搜索（槽位多重集枚举 + 规范化去重）、Try1 的规范 SP 树枚举 + Foster 辅助、
 模型选择分层与诚实边界。所有拟合曲线与数字均来自 v4.1.2 原生 CLI 对
 `examples/data1..4.csv` 真实测量数据的实际运行（拟合 JSON 存于 `/tmp/lcr-show/`，可复现命令见下文）。
+
+## 在线展示
+
+GitHub Pages：<https://invincible-summer.github.io/LCR-Analyzer-WebSite/>
+
+页面由 `.github/workflows/pages-show.yml` 自动部署：只要 `main` 上 `docs/show/html-to-ppt/**` 更新，就会重新发布。部署时将 `slides.html` 复制为站点根目录的 `index.html`，其余 `assets/` 原样保留，因此本地离线 KaTeX、图片与网页展示使用同一份素材。
 
 ## 目录
 
@@ -19,11 +25,9 @@ Try2 的图搜索（槽位多重集枚举 + 规范化去重）、Try1 的规范 
 chrome --headless=new --no-pdf-header-footer --virtual-time-budget=25000 \
        --print-to-pdf=out.pdf file:///…/html-to-ppt/slides.html
 
-# Beamer 版重建（tectonic 为静态二进制，亦可换 xelatex/latexmk）
-cd beamer-to-ppt && tectonic main.tex
 ```
 
-## 讲解顺序（两版一致）
+## 讲解顺序
 
 1. 问题定义：从 \(Z(f)\) 恢复 \((G,\theta)\)；三档先验总览表
 2. 电路 = 多重图；元件模型
