@@ -1,6 +1,6 @@
 # docs/show — Try1–Try3 算法理论讲解幻灯
 
-当前在线展示版为 12 页、16:9 的 HTML 幻灯，聚焦 LCR 辨识算法的理论部分：
+当前在线展示版为 14 页、16:9 的 HTML 幻灯，聚焦 LCR 辨识算法的理论部分：
 统一前向模型（电路 = 图、stamp、\(Z=b^{\mathsf T}Y^{-1}b\)）、误差度量（白化残差 / WRMSE / MAXREL / AICc）、
 Try3 的最优数值计算（解析灵敏度 + Levenberg–Marquardt）、
 Try2 的图搜索（槽位多重集枚举 + 规范化去重）、Try1 的规范 SP 树枚举。
@@ -38,8 +38,10 @@ chrome --headless=new --no-pdf-header-footer --virtual-time-budget=25000 \
 7. Try3（II）：元件参数计算——解析灵敏度与 Levenberg–Marquardt
 8. Try2：拓扑搜索——完整枚举、固定参数比较与候选排序
 9. Try1：结构发现——规范串并联（SP）树枚举
-10. 总结：共用核与 Try1–Try3
-11. 参考文献与技术标准
+10. Try1 拟合样例：未知结构搜索结果与拟合曲线
+11. Try3 拟合样例：已知拓扑参数拟合与诊断
+12. 总结：共用核与 Try1–Try3
+13. 参考文献与技术标准
 
 ## 数据与图的可复现性
 
@@ -55,5 +57,4 @@ $B try2 --csv examples/data4.csv --components examples/v4/data4.components.txt -
 $B try1 --csv examples/data2.csv --max-n 4 --top-k 8 --json
 ```
 
-当前展示中的实测验证图由这些 JSON 的 `theory` 曲线与 `diagnostics` 经 matplotlib 绘制；
-图搜索与参数拟合所用数字与 `AlgorithmLcr/VALIDATION.md` 的 real4 基准保持一致。
+理论验证图由这些 JSON 的 `theory` 曲线与 `diagnostics` 经 matplotlib 绘制；新增的 Try1 / Try3 拟合样例页直接采用前端实际运行界面截图，用于展示候选排序、等效电路、拟合曲线与 Try3 诊断输出。
