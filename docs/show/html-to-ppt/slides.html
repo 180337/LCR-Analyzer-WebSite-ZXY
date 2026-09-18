@@ -430,7 +430,7 @@ code.mono {
         <h3>优化坐标：数量级差异的尺度化处理</h3>
         <ul class="tight">
           <li>正参数 R/L/C 用对数坐标 \(x=\log_{10}q\)，链式因子 \(\ln 10\cdot q\)；跨 10 个数量级的搜索变成均匀空间。</li>
-          <li>DCR 用缩放线性非负坐标 \(x=R_d/z_{\text{scale}}\)，\(z_{\text{scale}}=\max(10^{-9},\mathrm{median}|Z|)\)——<b>可以精确到达 0</b>。</li>
+          <li>DCR 用缩放线性非负坐标 \(x=R_d/z_{\text{scale}}\)，\(z_{\text{scale}}=\max(10^{-9},\mathrm{median}|Z|)\)。</li>
           <li>箱约束显式投影：默认 \(R\in[10^{-3},10^{7}]\,\Omega\)、\(L\in[10^{-10},10]\,\mathrm{H}\)、\(C\in[10^{-13},10^{-3}]\,\mathrm{F}\)、\(R_d\in[0,10^{7}]\,\Omega\)。</li>
         </ul>
       </div>
