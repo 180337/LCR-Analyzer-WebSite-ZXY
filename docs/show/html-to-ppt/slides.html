@@ -220,7 +220,7 @@ code.mono {
           fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".55"/>
   </svg>
   <div class="footer" style="border-color:rgba(125,211,252,.25); color:#93c5fd;">
-    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 14</span>
+    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 13</span>
   </div>
 </section>
 
@@ -256,7 +256,7 @@ code.mono {
       <div class="note blue">所有候选电路均代入<b>同一前向方程</b>计算 \(Z(f)\)，并与测量数据统一比较；这是三个引擎共享的数学骨架。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 13</span></div>
 </section>
 
 <!-- ================= 3 · circuit as graph ================= -->
@@ -289,7 +289,7 @@ code.mono {
       <div class="small" style="text-align:center">示例：3 节点、3 条边 \(L\parallel(R+C)\) 的图与它的节点导纳矩阵</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 13</span></div>
 </section>
 
 <!-- ================= 4 · stamp ================= -->
@@ -330,7 +330,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 13</span></div>
 </section>
 
 <!-- ================= 5 · Z = b'Y^-1 b ================= -->
@@ -366,7 +366,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 13</span></div>
 </section>
 
 <!-- ================= 6 · residual & metrics ================= -->
@@ -410,7 +410,7 @@ code.mono {
       <div class="note green">这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 13</span></div>
 </section>
 
 <!-- ================= 7 · try3 part 1 ================= -->
@@ -453,7 +453,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 13</span></div>
 </section>
 
 <!-- ================= 8 · try3 part 2 ================= -->
@@ -513,50 +513,10 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 13</span></div>
 </section>
 
-<!-- ================= 9 · try3 part 3 ================= -->
-<section class="slide">
-  <div class="titlebar">
-    <div class="kicker">Try3 · 已知拓扑的参数估计</div>
-    <h1 class="title">Try3 全流程与可辨识性诊断</h1>
-  </div>
-  <div class="cols" style="font-size:15px">
-    <div class="col wide">
-      <div class="card" style="padding:10px 16px">
-        <h3>拟合前：端口不可观测结构的精确归约</h3>
-        <div class="flowline">
-          <div class="flowstep">R0 死区删除</div><div class="flowarrow">→</div>
-          <div class="flowstep">精确串并联归约</div><div class="flowarrow">→</div>
-          <div class="flowstep">域传播</div><div class="flowarrow">→</div>
-          <div class="flowstep">聚合群上共享拟合</div>
-        </div>
-        <ul class="tight" style="margin-top:6px">
-          <li>死区：仅经一个割点挂接且不含另一端口的子网络，对 \(Z\) 无贡献（如悬挂三角形）。</li>
-          <li>恒等归约：并联 R 倒数和 / 并联 C 求和；串联同类相加；串联 R 折入 L 的 DCR；<b>不合并并联 L+DCR</b>。</li>
-          <li>归约群允许域按表达式单调传播（两个 rMax 串联可达 \(2\,r_{\max}\)，不被单器件箱误删）。</li>
-        </ul>
-      </div>
-      <div class="card" style="padding:10px 16px">
-        <h3>拟合后：可辨识性诊断</h3>
-        <ul class="tight">
-          <li>加权实 Jacobian 的 SVD：数值秩、奇异值、条件数——满列秩支持<b>局部可辨识</b>；单点秩亏不自动证明全局参数族。<sup class="cite"><a href="#ref-11">[11]</a></sup><sup class="cite"><a href="#ref-12">[12]</a></sup></li>
-          <li>弹性度 \(\max_f |q\,\partial Z/\partial q|/|Z|&lt;0.1\) 标记 weak；atBound、多起点一致性（agreeingStarts）单独报告。</li>
-          <li>条件满足时给线性化 SE 与 95% 区间：\(C_x=V\,\mathrm{diag}(\sigma_i^{-2})V^{\mathsf T}\cdot\frac{J}{n-p}\)，对数坐标经 \(10^{x}\) 映射回物理单位。</li>
-          <li>结论分级：IDENTIFIABLE_LOCAL / AMBIGUOUS_EQUIVALENCE_CLASS / NUMERICALLY_UNSTABLE / DATA_INSUFFICIENT / LOCAL_FIT_UNCONFIRMED。</li>
-        </ul>
-      </div>
-    </div>
-    <div class="col">
-      <div class="figwrap"><img class="fig" src="assets/figs/fig-ident.png" style="max-height:316px"></div>
-      <div class="note" style="font-size:13.5px">真实案例 data4：rank 5/5、条件数 32.8、9/16 起点一致——局部可辨识；但 \(R_1\) 回收 138 Ω，CI [132.6, 144.1] <b>不含标称 200 Ω</b>：并联槽路阻尼由 \(R_1\) 与 L 的 DCR 强相关地共同提供。</div>
-    </div>
-  </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 14</span></div>
-</section>
-
-<!-- ================= 10 · try2 part 1 ================= -->
+<!-- ================= 9 · try2 part 1 ================= -->
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Try2 · 已知器件的拓扑搜索</div>
@@ -593,10 +553,10 @@ code.mono {
       <div class="figwrap"><img class="fig" src="assets/figs/fig-funnel.png"></div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 13</span></div>
 </section>
 
-<!-- ================= 11 · try2 part 2 ================= -->
+<!-- ================= 10 · try2 part 2 ================= -->
 <section class="slide compact">
   <div class="titlebar">
     <div class="kicker">Try2 · 已知器件的拓扑搜索</div>
@@ -625,10 +585,10 @@ code.mono {
       <div class="figwrap"><img class="fig" src="assets/figs/try3-data4-4.png"></div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 13</span></div>
 </section>
 
-<!-- ================= 12 · try1 part 1 ================= -->
+<!-- ================= 11 · try1 part 1 ================= -->
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Try1 · 无先验结构的模型发现</div>
@@ -665,10 +625,10 @@ code.mono {
       <div class="note green">每棵 SP 树展开为图（SER 链生成内部节点）后，进入<b>同一个</b> \(Z=b^{\mathsf T}Y^{-1}b\) 前向求值与共享拟合，从而与 Try2/Try3 共用统一计算链路。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 13</span></div>
 </section>
 
-<!-- ================= 13 · summary ================= -->
+<!-- ================= 12 · summary ================= -->
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Summary</div>
@@ -718,10 +678,10 @@ code.mono {
       对每个候选电路均采用统一评价流程：注入 1 A 测试电流 → 解 \(Yv=b\) → 得到 \(Z=V_1\) → 与测量数据比较。
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 13</span></div>
 </section>
 
-<!-- ================= 14 · references ================= -->
+<!-- ================= 13 · references ================= -->
 <section class="slide references-slide" id="references">
   <div class="titlebar">
     <div class="kicker">References</div>
@@ -753,7 +713,7 @@ code.mono {
       <li id="ref-17">Keysight Technologies, “1-Port Calibration (reflection test)” and “Measurement Errors”: one-port OSL calibration corrects directivity, source match, and reflection tracking errors. Manufacturer technical documentation.</li>
     </ol>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">14 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 13</span></div>
 </section>
 
 </body>
