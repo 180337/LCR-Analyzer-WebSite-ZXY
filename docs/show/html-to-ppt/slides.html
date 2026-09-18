@@ -228,12 +228,12 @@ code.mono {
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Overview</div>
-    <h1 class="title">问题：从黑盒的 \(Z(f)\) 恢复电路 \((G,\theta)\)</h1>
+    <h1 class="title">问题定义：由端口阻抗 \(Z(f)\) 反演电路 \((G,\theta)\)</h1>
   </div>
   <div class="cols">
     <div class="col wide">
       <div class="card">
-        <h3>测量能给我们什么</h3>
+        <h3>测量数据与可观测量</h3>
         <ul class="tight">
           <li>对数扫频得到离散复阻抗序列 \(\{(f_k,\,Z_k)\}_{k=1..M}\)，本例 \(M=20\ldots40\)，10 Hz–10 kHz。<sup class="cite"><a href="#ref-1" title="IEEE 1057-2017">[1]</a></sup></li>
           <li>唯一可观测的是<b>端口行为</b> \(Z(s)\)；内部结构需要靠"假设—计算—比较"的逆问题求解。</li>
@@ -241,7 +241,7 @@ code.mono {
         <div class="small" style="margin-top:5px">测量链理论来源：已知频率正弦拟合参照<sup class="cite"><a href="#ref-1">[1]</a></sup>；一端口 OSL 系统误差模型参照<sup class="cite"><a href="#ref-17">[17]</a></sup>。</div>
       </div>
       <div class="card">
-        <h3>三个引擎 = 同一逆问题的三档先验</h3>
+        <h3>三种引擎对应同一逆问题的三档先验</h3>
         <table class="data">
           <tr><th>引擎</th><th>已知</th><th>未知</th><th>核心动作</th></tr>
           <tr><td><b>Try1</b></td><td>仅测量（可选器件数）</td><td>数量·类型·接线·数值</td><td>枚举规范 SP 树 + Foster 辅助，逐模型拟合</td></tr>
@@ -253,7 +253,7 @@ code.mono {
     </div>
     <div class="col">
       <div class="figwrap"><img class="fig" src="assets/figs/fig-overview.png"></div>
-      <div class="note blue">不管怎么"猜"，每个候选电路最终都代入<b>同一个前向方程</b>算出 \(Z(f)\)，再与测量比较——这是三个引擎共享的数学骨架。</div>
+      <div class="note blue">所有候选电路均代入<b>同一前向方程</b>计算 \(Z(f)\)，并与测量数据统一比较；这是三个引擎共享的数学骨架。</div>
     </div>
   </div>
   <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 19</span></div>
@@ -268,7 +268,7 @@ code.mono {
   <div class="cols">
     <div class="col wide">
       <div class="card">
-        <h3>图论语言</h3>
+        <h3>图模型定义</h3>
         <ul class="tight">
           <li><b>顶点</b> = 电气连接点；<b>边</b> = 一个元件；端口固定为节点 0 / 1。</li>
           <li>允许<b>重边</b>（同节点对多个元件 = 并联），不允许自环；无互感、无受控源。</li>
@@ -296,12 +296,12 @@ code.mono {
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Unified Forward Model</div>
-    <h1 class="title">前向模型 I：每条边向 \(Y\) "盖一次章"</h1>
+    <h1 class="title">前向模型 I：节点导纳矩阵的支路装配</h1>
   </div>
   <div class="cols">
     <div class="col wide">
       <div class="card">
-        <h3>边的 stamp（导纳 \(y\)，端点 \(u,v\)）</h3>
+        <h3>支路导纳 Stamp（导纳 \(y\)，端点 \(u,v\)）</h3>
         <div class="fbox">
           \[
           Y_{uu}\mathrel{+}=y,\qquad Y_{vv}\mathrel{+}=y,\qquad
@@ -310,11 +310,11 @@ code.mono {
         </div>
         <ul class="tight">
           <li>地（端口 0）电压恒为 0：<b>不进入未知量</b>，只盖非地端的对角元。</li>
-          <li>写成矩阵语言：\(Y(s)=\sum_e y_e(s)\,a_e a_e^{\mathsf T}\)，其中 \(a_e\) 在 \(u\) 处 \(+1\)、\(v\) 处 \(-1\)——<b>每加一个元件 = 给 \(Y\) 加一个秩 1 矩阵</b>。</li>
+          <li>写成矩阵语言：\(Y(s)=\sum_e y_e(s)\,a_e a_e^{\mathsf T}\)，其中 \(a_e\) 在 \(u\) 处 \(+1\)、\(v\) 处 \(-1\)——<b>每加入一个元件，等价于向 \(Y\) 累加一个秩 1 矩阵</b>。</li>
         </ul>
       </div>
       <div class="card">
-        <h3>最小例子：节点 1、2 之间一条电阻 \(R\)，\(g=1/R\)</h3>
+        <h3>最小算例：节点 1、2 之间的一条电阻 \(R\)，\(g=1/R\)</h3>
         \[
         Y=\begin{bmatrix} g & -g\\ -g & g\end{bmatrix}
         \qquad\text{——再复杂的图也只是"多盖几次章"}
@@ -323,7 +323,7 @@ code.mono {
     </div>
     <div class="col narrow">
       <div class="card" style="flex:1">
-        <h3>为什么用节点导纳矩阵</h3>
+        <h3>节点导纳矩阵的适用性</h3>
         <ul class="tight">
           <li>KCL 的直接离散形式，组装是<b>局部、可加</b>的。</li>
           <li>串并联公式只是它在特殊拓扑下的化简结果；节点法天然处理<b>桥式、重边、任意小型图</b>——这正是 Try2 能搜索桥式网络的原因。</li>
@@ -356,7 +356,7 @@ code.mono {
         </div>
       </div>
       <div class="card">
-        <h3>手算验证：\(R\)–\(C\) 串联（故意不用串联公式）</h3>
+        <h3>节点法验证：\(R\)–\(C\) 串联算例</h3>
         未知节点 \(\{1,2\}\)，\(g=1/R,\;y_C=j\omega C\)：
         \[
         Y=\begin{bmatrix} g & -g\\ -g & g+y_C\end{bmatrix},\quad
@@ -384,7 +384,7 @@ code.mono {
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Fitting Objective</div>
-    <h1 class="title">拟合与测量的差距怎么量化：WRMSE、MAXREL 与 AICc</h1>
+    <h1 class="title">拟合误差与模型选择指标：WRMSE、MAXREL 与 AICc</h1>
   </div>
   <div class="cols">
     <div class="col wide">
@@ -401,9 +401,9 @@ code.mono {
           <li>报告指标：<b>WRMSE</b> \(=\sqrt{\overline{\|r_k\|^2}}\)（整体相对误差）与 <b>MAXREL</b>（最差单频点相对误差）；可选逐点协方差做 GLS。</li>
         </ul>
         <div class="metric-strip">
-          <div class="metric-pill"><b>WRMSE</b><span>看整体</span><code>field: wrmse · 越小越好</code></div>
-          <div class="metric-pill"><b>MAXREL</b><span>查最坏点</span><code>field: max_relative_error · 越小越好</code></div>
-          <div class="metric-pill"><b>AICc</b><span>防过拟合</span><code>同一数据/似然假设下比较 · 越小越好</code></div>
+          <div class="metric-pill"><b>WRMSE</b><span>整体拟合误差</span><code>field: wrmse · 越小越好</code></div>
+          <div class="metric-pill"><b>MAXREL</b><span>最坏频点误差</span><code>field: max_relative_error · 越小越好</code></div>
+          <div class="metric-pill"><b>AICc</b><span>复杂度惩罚</span><code>同一数据/似然假设下比较 · 越小越好</code></div>
         </div>
       </div>
       <div class="card">
@@ -419,7 +419,7 @@ code.mono {
     </div>
     <div class="col narrow">
       <div class="card" style="flex:1">
-        <h3>鲁棒选项（只影响拟合权重）<sup class="cite"><a href="#ref-15" title="Huber, 1964">[15]</a></sup></h3>
+        <h3>鲁棒拟合选项（只影响拟合权重）<sup class="cite"><a href="#ref-15" title="Huber, 1964">[15]</a></sup></h3>
         <ul class="tight">
           <li>Huber IRLS：对白化残差范数取 \(2.5\times\)中位数为阈值降权，至多 3 轮，要求过半点保持内点。</li>
           <li>原始相对权重的 WRMSE / MAXREL <b>始终照常报告</b>，异常点不从报告中消失。</li>
@@ -435,13 +435,13 @@ code.mono {
 <!-- ================= 7 · try3 part 1 ================= -->
 <section class="slide">
   <div class="titlebar">
-    <div class="kicker">Try3 · 已知拓扑，反求数值</div>
-    <h1 class="title">最优元件数值怎么算（I）：参数化、初值与多起点</h1>
+    <div class="kicker">Try3 · 已知拓扑的参数估计</div>
+    <h1 class="title">最优元件数值计算（I）：参数化、初值与多起点</h1>
   </div>
   <div class="cols">
     <div class="col wide">
       <div class="card">
-        <h3>优化坐标：让数量级成为"平移"</h3>
+        <h3>优化坐标：数量级差异的尺度化处理</h3>
         <ul class="tight">
           <li>正参数 R/L/C 用对数坐标 \(x=\log_{10}q\)，链式因子 \(\ln 10\cdot q\)；跨 10 个数量级的搜索变成均匀空间。</li>
           <li>DCR 用缩放线性非负坐标 \(x=R_d/z_{\text{scale}}\)，\(z_{\text{scale}}=\max(10^{-9},\mathrm{median}|Z|)\)——<b>可以精确到达 0</b>（softplus 做不到，故不采用）。</li>
@@ -449,7 +449,7 @@ code.mono {
         </ul>
       </div>
       <div class="card">
-        <h3>物理尺度初值（不靠运气起步）</h3>
+        <h3>物理尺度初值构造</h3>
         <div class="fbox">
           \[
           \omega_c=2\pi\sqrt{f_{\min}f_{\max}},\qquad
@@ -478,8 +478,8 @@ code.mono {
 <!-- ================= 8 · try3 part 2 ================= -->
 <section class="slide">
   <div class="titlebar">
-    <div class="kicker">Try3 · 已知拓扑，反求数值</div>
-    <h1 class="title">最优元件数值怎么算（II）：解析灵敏度 + Levenberg–Marquardt</h1>
+    <div class="kicker">Try3 · 已知拓扑的参数估计</div>
+    <h1 class="title">最优元件数值计算（II）：解析灵敏度与 Levenberg–Marquardt</h1>
   </div>
   <div class="cols">
     <div class="col wide">
@@ -494,7 +494,7 @@ code.mono {
           \]
         </div>
         <ul class="tight">
-          <li>直觉：元件两端电压差 \(\approx 0\;\Rightarrow\;\partial Z/\partial q\approx 0\)——端口"看不见"它，也就无法从端口数据确定它（<b>可辨识性</b>的根源）。</li>
+          <li>当元件两端电压差 \(\approx 0\) 时，\(\partial Z/\partial q\approx 0\)：端口响应对该参数灵敏度极低，因此难以由端口数据辨识（<b>可辨识性</b>的根源）。</li>
         </ul>
       </div>
       <div class="card">
@@ -518,7 +518,7 @@ code.mono {
     </div>
     <div class="col narrow">
       <div class="card" style="flex:1">
-        <h3>一轮迭代的闭环</h3>
+        <h3>单次 LM 迭代流程</h3>
         <div class="flowline" style="flex-direction:column; align-items:stretch; gap:6px">
           <div class="flowstep">当前参数 \(x\) → 组装 \(Y(f_k)\)</div>
           <div class="flowarrow" style="align-self:center">↓</div>
@@ -538,13 +538,13 @@ code.mono {
 <!-- ================= 9 · try3 part 3 ================= -->
 <section class="slide">
   <div class="titlebar">
-    <div class="kicker">Try3 · 已知拓扑，反求数值</div>
+    <div class="kicker">Try3 · 已知拓扑的参数估计</div>
     <h1 class="title">Try3 全流程与可辨识性诊断</h1>
   </div>
   <div class="cols" style="font-size:15px">
     <div class="col wide">
       <div class="card" style="padding:10px 16px">
-        <h3>拟合前：把"端口看不见的东西"精确归约掉</h3>
+        <h3>拟合前：端口不可观测结构的精确归约</h3>
         <div class="flowline">
           <div class="flowstep">R0 死区删除</div><div class="flowarrow">→</div>
           <div class="flowstep">精确串并联归约</div><div class="flowarrow">→</div>
@@ -558,7 +558,7 @@ code.mono {
         </ul>
       </div>
       <div class="card" style="padding:10px 16px">
-        <h3>拟合后：可辨识性诊断（而不是"猜完了就完了"）</h3>
+        <h3>拟合后：可辨识性诊断</h3>
         <ul class="tight">
           <li>加权实 Jacobian 的 SVD：数值秩、奇异值、条件数——满列秩支持<b>局部可辨识</b>；单点秩亏不自动证明全局参数族。<sup class="cite"><a href="#ref-11">[11]</a></sup><sup class="cite"><a href="#ref-12">[12]</a></sup></li>
           <li>弹性度 \(\max_f |q\,\partial Z/\partial q|/|Z|&lt;0.1\) 标记 weak；atBound、多起点一致性（agreeingStarts）单独报告。</li>
@@ -578,8 +578,8 @@ code.mono {
 <!-- ================= 10 · try2 part 1 ================= -->
 <section class="slide">
   <div class="titlebar">
-    <div class="kicker">Try2 · 已知器件，搜索接线</div>
-    <h1 class="title">图怎么搜（I）：有限空间的完整枚举</h1>
+    <div class="kicker">Try2 · 已知器件的拓扑搜索</div>
+    <h1 class="title">图结构搜索（I）：有限空间的完整枚举</h1>
   </div>
   <div class="cols">
     <div class="col wide">
@@ -599,7 +599,7 @@ code.mono {
         </ul>
       </div>
       <div class="card">
-        <h3>剪掉重复与无效：规范化（canonicalization）<sup class="cite"><a href="#ref-16" title="McKay & Piperno, 2014">[16]</a></sup></h3>
+        <h3>重复结构消除与活动性过滤：规范化（canonicalization）<sup class="cite"><a href="#ref-16" title="McKay & Piperno, 2014">[16]</a></sup></h3>
         <ul class="tight">
           <li>结构过滤：无孤立节点；<b>活动性</b>检查（所有元件必须端口连通，完整割点死区直接排除）。</li>
           <li>内部节点重命名与互易端口交换不改变电路 → 枚举全部置换，取<b>字典序最小签名</b>作为"身份证"去重（同一电路只算一次）。</li>
@@ -618,13 +618,13 @@ code.mono {
 <!-- ================= 11 · try2 part 2 ================= -->
 <section class="slide compact">
   <div class="titlebar">
-    <div class="kicker">Try2 · 已知器件，搜索接线</div>
-    <h1 class="title">图怎么搜（II）：评价、排序与实测验证</h1>
+    <div class="kicker">Try2 · 已知器件的拓扑搜索</div>
+    <h1 class="title">图结构搜索（II）：候选评价、排序与实测验证</h1>
   </div>
   <div class="cols">
     <div class="col">
       <div class="card">
-        <h3>Exact 模式（默认）：固定参数，只比接线</h3>
+        <h3>Exact 模式（默认）：固定参数下的拓扑比较</h3>
         <ul class="tight">
           <li>每个候选图在<b>全部频点</b>上前向求值（0 个自由参数），按共同 RSS 目标排序。</li>
           <li>Top-K：按观测频点数值等价（默认容差 \(10^{-6}\)）聚类，每类给一个代表元。</li>
@@ -650,7 +650,7 @@ code.mono {
 <!-- ================= 12 · try1 part 1 ================= -->
 <section class="slide">
   <div class="titlebar">
-    <div class="kicker">Try1 · 一无所知，盲搜模型</div>
+    <div class="kicker">Try1 · 无先验结构的模型发现</div>
     <h1 class="title">Try1（I）：规范串并联（SP）树的枚举</h1>
   </div>
   <div class="cols">
@@ -670,7 +670,7 @@ code.mono {
         </div>
       </div>
       <div class="card" style="padding:11px 16px; font-size:15px">
-        <h3>规范化规则：同一电路只留一棵树</h3>
+        <h3>规范化规则：等价 SP 结构去重</h3>
         <ul class="tight">
           <li>同运算扁平化：\(S(S(a,b),c)\to S(a,b,c)\)；子树按规范键排序。</li>
           <li>不生成可直接归约的结构：SER 下同类叶、SER 下 \(R{+}L\)（折入 DCR）；PAR 下同类 R/C 不生成，但<b>保留并联 L</b>（不同 DCR 时间常数不可合并）。</li>
@@ -681,7 +681,7 @@ code.mono {
     </div>
     <div class="col">
       <div class="figwrap"><img class="fig" src="assets/figs/fig-sptree.png"></div>
-      <div class="note green">每棵树 expand 成图（SER 链生成内部节点）后，进入<b>同一个</b> \(Z=b^{\mathsf T}Y^{-1}b\) 前向求值与共享拟合——Try1 的"猜测"与 Try2/Try3 的"计算"无缝衔接。</div>
+      <div class="note green">每棵 SP 树展开为图（SER 链生成内部节点）后，进入<b>同一个</b> \(Z=b^{\mathsf T}Y^{-1}b\) 前向求值与共享拟合，从而与 Try2/Try3 共用统一计算链路。</div>
     </div>
   </div>
   <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 19</span></div>
@@ -690,13 +690,13 @@ code.mono {
 <!-- ================= 13 · try1 part 2 ================= -->
 <section class="slide">
   <div class="titlebar">
-    <div class="kicker">Try1 · 一无所知，盲搜模型</div>
+    <div class="kicker">Try1 · 无先验结构的模型发现</div>
     <h1 class="title">Try1（II）：有理拟合 → Foster 辅助候选</h1>
   </div>
   <div class="cols">
     <div class="col wide">
       <div class="card">
-        <h3>辅助路径：从数据直接综合出候选电路</h3>
+        <h3>Foster 辅助路径：由有理响应构造候选电路</h3>
         <ul class="tight">
           <li>尺度化（\(s/\omega_0\)、\(Z/Z_0\)，\(\omega_0\) 取频带几何中心）后做<b>实系数有理最小二乘</b>。</li>
           <li>解分母校正后用<b>特征值重定位</b>移动极点，再重拟合留数（vector fitting 思想的实数基版本）。<sup class="cite"><a href="#ref-9">[9]</a></sup></li>
@@ -704,7 +704,7 @@ code.mono {
         </ul>
       </div>
       <div class="card">
-        <h3>两个被接纳的综合单元（归一化坐标，含尺度恢复）</h3>
+        <h3>可接受的综合单元（归一化坐标，含尺度恢复）</h3>
         <div class="fbox">
           \[
           \frac{K}{s+a}=R\parallel C:\;\; R=\frac{K}{a},\;C=\frac{1}{K}
@@ -721,7 +721,7 @@ code.mono {
     </div>
     <div class="col narrow">
       <div class="card" style="flex:1">
-        <h3>定位与边界</h3>
+        <h3>适用范围与边界</h3>
         <ul class="tight">
           <li>这是一个<b>明确的 Foster 子族</b>，不是任意正实函数的通用综合（不含 Cauer / Brune / Bott–Duffin 的一般综合）。<sup class="cite"><a href="#ref-3">[3]</a></sup><sup class="cite"><a href="#ref-4">[4]</a></sup><sup class="cite"><a href="#ref-6">[6]</a></sup></li>
           <li>SP 离散枚举完整 ≠ 连续内层全局最优；也不宣称真实桥式结构一定在假设空间内。</li>
@@ -742,7 +742,7 @@ code.mono {
   <div class="cols">
     <div class="col">
       <div class="card">
-        <h3>候选三层（谁的 AICc 才算数）</h3>
+        <h3>候选资格分层与 AICc 使用条件</h3>
         <table class="data">
           <tr><th>层</th><th>条件</th><th>排序依据</th></tr>
           <tr><td><span class="tag b">primary</span></td><td>AICc 有效 · 收敛 · 非 robust · 满秩 · 无触界</td><td>AICc，展示<b>校准 ΔAICc</b></td></tr>
@@ -752,7 +752,7 @@ code.mono {
         <div class="small" style="margin-top:6px">单个过参数候选的 AICc 失效只降级它自己，不再拖累整组；无 primary 或 robust 运行 → <code class="mono">RSS_DIAGNOSTIC_FALLBACK</code>（明确标记"非校准选择"）。</div>
       </div>
       <div class="card">
-        <h3>Top-K = 行为等价类，不是 K 个电路</h3>
+        <h3>Top-K 行为等价类</h3>
         <ul class="tight">
           <li>两个候选在<b>全部观测频点</b>上 \(|\hat Z_a-\hat Z_b|\le\varepsilon\max(\cdot)\)（默认 \(10^{-6}\)）→ 同一类，只输出代表元并计成员数。</li>
           <li>等价声明是 <b>observed-grid（观测频点数值等价）</b>，不是符号恒等，也不是连续频带等价。</li>
@@ -784,7 +784,7 @@ code.mono {
     </div>
     <div class="col narrow">
       <div class="card">
-        <h3>回收参数（20 个频点，3 自由参数）</h3>
+        <h3>参数估计结果（20 个频点，3 自由参数）</h3>
         <table class="data">
           <tr><th>参数</th><th class="num">拟合值</th><th class="num">95% CI</th><th class="num">标称</th></tr>
           <tr><td>L</td><td class="num">100.9 mH</td><td class="num">[98.7, 103.1]</td><td class="num">100 mH</td></tr>
@@ -839,7 +839,7 @@ code.mono {
 <section class="slide">
   <div class="titlebar">
     <div class="kicker">Honest Boundaries</div>
-    <h1 class="title">哪些结论不能宣称（以及为什么）</h1>
+    <h1 class="title">结论边界与适用范围</h1>
   </div>
   <div class="cols">
     <div class="col wide">
@@ -855,7 +855,7 @@ code.mono {
     </div>
     <div class="col narrow">
       <div class="card" style="flex:1">
-        <h3>成果如何如实呈现</h3>
+        <h3>结果呈现规范</h3>
         <ul class="tight">
           <li>Top-K 输出<b>行为等价类</b>代表元与成员数，而非"唯一电路"。</li>
           <li>每个候选携带自己的诊断（收敛、秩、边界、数值状态）。</li>
@@ -877,7 +877,7 @@ code.mono {
   </div>
   <div style="display:flex; flex-direction:column; gap:16px; flex:1">
     <div class="card">
-      <h3>统一管线（三个引擎共享同一个数学实现）</h3>
+      <h3>统一算法管线（三个引擎共享同一数学实现）</h3>
       <div class="flowline" style="justify-content:center">
         <div class="flowstep">测量 \(Z(f_k)\)</div><div class="flowarrow">→</div>
         <div class="flowstep">候选 \((G,\theta)\)</div><div class="flowarrow">→</div>
@@ -906,17 +906,17 @@ code.mono {
       </div>
       <div class="col">
         <div class="card">
-          <h3>三个引擎一句话</h3>
+          <h3>三种引擎概览</h3>
           <ul class="tight">
-            <li><b>Try1</b>：枚举规范 SP 树 + Foster 辅助——结构、类型、数值全要猜。</li>
-            <li><b>Try2</b>：器件已知，完整枚举非同构多重图——结构猜完直接比。</li>
-            <li><b>Try3</b>：结构已知，归约 + 解析灵敏度 LM——把数值钉到最优点并给出可辨识性诊断。</li>
+            <li><b>Try1</b>：枚举规范 SP 树并结合 Foster 辅助候选，同时搜索结构、类型与元件参数。</li>
+            <li><b>Try2</b>：器件集合已知，完整枚举非同构多重图并对候选拓扑统一评价。</li>
+            <li><b>Try3</b>：拓扑已知，经过归约与解析灵敏度 LM 拟合元件参数，并输出可辨识性诊断。</li>
           </ul>
         </div>
       </div>
     </div>
     <div class="note blue" style="text-align:center;font-size:15.5px">
-      每猜出一个候选电路，判断方法永远一样：灌 1 A 电流 → 解 \(Yv=b\) → \(Z=V_1\) → 与测量比较。
+      对每个候选电路均采用统一评价流程：注入 1 A 测试电流 → 解 \(Yv=b\) → 得到 \(Z=V_1\) → 与测量数据比较。
     </div>
   </div>
   <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">18 / 19</span></div>
