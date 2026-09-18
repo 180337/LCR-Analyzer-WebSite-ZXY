@@ -37,7 +37,7 @@ chrome --headless=new --no-pdf-header-footer --virtual-time-budget=25000 \
 6. Try3（I）对数坐标、物理尺度初值、16 起点多启动
 7. Try3（II）解析灵敏度 \(\partial Z/\partial q\)、SVD-LM 步进细节
 8. Try2（I）\(2\le V\le E+1\)、槽位多重集 DFS、规范化去重、枚举漏斗（E=3: 67→4→10）
-9. Try2（II）Exact 全频评价与条件最优证书、Top-K 等价类、实测 data4（98 候选 rank-1=真值）
+9. Try2（II）Exact 全频评价、条件最优证书与 Top-K 等价类
 10. Try1 规范 SP 树枚举规则（130 棵树）与 expand-to-graph
 11. 总结：统一管线 + 三个关键公式
 12. 参考文献：理论文档 [1]–[17] 全量文献/标准/技术资料；正文相关位置保留对应上标引用
