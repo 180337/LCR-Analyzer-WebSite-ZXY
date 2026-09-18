@@ -408,14 +408,6 @@ code.mono {
       </div>
     </div>
     <div class="col narrow">
-      <div class="card" style="flex:1">
-        <h3>鲁棒拟合选项（只影响拟合权重）<sup class="cite"><a href="#ref-15" title="Huber, 1964">[15]</a></sup></h3>
-        <ul class="tight">
-          <li>Huber IRLS：对白化残差范数取 \(2.5\times\)中位数为阈值降权，至多 3 轮，要求过半点保持内点。</li>
-          <li>原始相对权重的 WRMSE / MAXREL <b>始终照常报告</b>，异常点不从报告中消失。</li>
-          <li>robust 运行不参与 AICc 校准选择，按 RSS 诊断回退排序。</li>
-        </ul>
-      </div>
       <div class="note green">这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。</div>
     </div>
   </div>
