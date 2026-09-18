@@ -100,6 +100,13 @@ h1.title { font-size: 30px; margin: 0 0 4px 0; font-weight: 700; letter-spacing:
   display: flex; flex-direction: column; justify-content: space-evenly; flex: 1 1 auto;
 }
 .slide.try2-layout ul.tight li { margin: 4px 0; line-height: 1.48; }
+.slide.try2-layout .col:last-child ul.tight {
+  justify-content: flex-start;
+  gap: 10px;
+}
+.slide.try2-layout .col:last-child ul.tight li {
+  margin: 0;
+}
 .cols { display: flex; gap: 26px; flex: 1 1 auto; min-height: 0; }
 .col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
 .col.narrow { flex: 0.78 1 0; }
