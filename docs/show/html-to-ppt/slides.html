@@ -370,40 +370,36 @@ code.mono {
     <div class="kicker">Fitting Objective</div>
     <h1 class="title">拟合误差与模型选择指标：WRMSE、MAXREL 与 AICc</h1>
   </div>
-  <div class="cols">
-    <div class="col wide">
-      <div class="card">
-        <h3>白化相对残差（默认噪声模型）</h3>
-        <div class="fbox">
-          \[
-          z_{\text{floor}}=\max\!\bigl(10^{-15},\;10^{-9}\,\mathrm{median}|Z_k|\bigr),\qquad
-          r_k=\frac{\begin{bmatrix}\mathrm{Re}(\hat Z_k-Z_k)\\[2pt] \mathrm{Im}(\hat Z_k-Z_k)\end{bmatrix}}{\max(|Z_k|,\,z_{\text{floor}})}
-          \]
-        </div>
-        <ul class="tight">
-          <li>目标函数 \(J=\sum_k\|r_k\|^2\)（相对加权：\(1\,\mathrm{k\Omega}\) 与 \(1\,\mathrm{\Omega}\) 的数据同等对待；近零保护防除零）。</li>
-          <li>报告指标：<b>WRMSE</b> \(=\sqrt{\overline{\|r_k\|^2}}\)（整体相对误差）与 <b>MAXREL</b>（最差单频点相对误差）；可选逐点协方差做 GLS。</li>
-        </ul>
-        <div class="metric-strip">
-          <div class="metric-pill"><b>WRMSE</b><span>整体拟合误差</span><code>field: wrmse · 越小越好</code></div>
-          <div class="metric-pill"><b>MAXREL</b><span>最坏频点误差</span><code>field: max_relative_error · 越小越好</code></div>
-          <div class="metric-pill"><b>AICc</b><span>复杂度惩罚</span><code>同一数据/似然假设下比较 · 越小越好</code></div>
-        </div>
+  <div class="col">
+    <div class="card">
+      <h3>白化相对残差（默认噪声模型）</h3>
+      <div class="fbox">
+        \[
+        z_{\text{floor}}=\max\!\bigl(10^{-15},\;10^{-9}\,\mathrm{median}|Z_k|\bigr),\qquad
+        r_k=\frac{\begin{bmatrix}\mathrm{Re}(\hat Z_k-Z_k)\\[2pt] \mathrm{Im}(\hat Z_k-Z_k)\end{bmatrix}}{\max(|Z_k|,\,z_{\text{floor}})}
+        \]
       </div>
-      <div class="card">
-        <h3>复杂度惩罚：AICc（小样本修正 AIC）<sup class="cite"><a href="#ref-13">[13]</a></sup><sup class="cite"><a href="#ref-14">[14]</a></sup></h3>
-        <div class="fbox">
-          \[
-          \mathrm{AICc}=n\log\!\bigl(\max(J/n,10^{-300})\bigr)+2k+\frac{2k(k+1)}{n-k-1},
-          \qquad n=2M,\;k=p+1
-          \]
-        </div>
-        <div class="small">观测数 \(n\) 是 \(2M\) 个实分量；\(p\) 为自由电参数数，\(+1\) 是未知的共同方差。参数越多惩罚越重，防止"多加元件总能更低残差"的过拟合。</div>
+      <ul class="tight">
+        <li>目标函数 \(J=\sum_k\|r_k\|^2\)（相对加权：\(1\,\mathrm{k\Omega}\) 与 \(1\,\mathrm{\Omega}\) 的数据同等对待；近零保护防除零）。</li>
+        <li>报告指标：<b>WRMSE</b> \(=\sqrt{\overline{\|r_k\|^2}}\)（整体相对误差）与 <b>MAXREL</b>（最差单频点相对误差）；可选逐点协方差做 GLS。</li>
+      </ul>
+      <div class="metric-strip">
+        <div class="metric-pill"><b>WRMSE</b><span>整体拟合误差</span><code>field: wrmse · 越小越好</code></div>
+        <div class="metric-pill"><b>MAXREL</b><span>最坏频点误差</span><code>field: max_relative_error · 越小越好</code></div>
+        <div class="metric-pill"><b>AICc</b><span>复杂度惩罚</span><code>同一数据/似然假设下比较 · 越小越好</code></div>
       </div>
     </div>
-    <div class="col narrow">
-      <div class="note green">这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。</div>
+    <div class="card">
+      <h3>复杂度惩罚：AICc（小样本修正 AIC）<sup class="cite"><a href="#ref-13">[13]</a></sup><sup class="cite"><a href="#ref-14">[14]</a></sup></h3>
+      <div class="fbox">
+        \[
+        \mathrm{AICc}=n\log\!\bigl(\max(J/n,10^{-300})\bigr)+2k+\frac{2k(k+1)}{n-k-1},
+        \qquad n=2M,\;k=p+1
+        \]
+      </div>
+      <div class="small">观测数 \(n\) 是 \(2M\) 个实分量；\(p\) 为自由电参数数，\(+1\) 是未知的共同方差。参数越多惩罚越重，防止"多加元件总能更低残差"的过拟合。</div>
     </div>
+    <div class="note green">这些指标对所有引擎统一：Try1 用它做模型选择，Try2 用它给接线排序，Try3 用它报告单拓扑拟合质量。</div>
   </div>
   <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 13</span></div>
 </section>
