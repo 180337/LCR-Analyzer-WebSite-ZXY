@@ -7,6 +7,7 @@ import { useAppStore } from '../store/app'
 const route = useRoute()
 const router = useRouter()
 const app = useAppStore()
+const staticDeploy = import.meta.env.VITE_STATIC_DEPLOY === '1'
 const title = computed(() => (route.meta.title as string) || '')
 const sub = computed(() => (route.meta.sub as string) || '')
 </script>
@@ -27,7 +28,11 @@ const sub = computed(() => (route.meta.sub as string) || '')
       >
         <BookOpen />使用文档
       </button>
-      <span class="badge" :class="app.deviceOnline ? 'good' : ''">
+      <span v-if="staticDeploy" class="badge good" title="GitHub Pages 静态版：CSV / Web Bluetooth / C++ WASM 均在浏览器本地运行">
+        <span class="dot good"></span>
+        STATIC · BLE/WASM
+      </span>
+      <span v-else class="badge" :class="app.deviceOnline ? 'good' : ''">
         <span class="dot" :class="app.deviceOnline ? 'good' : 'idle'"></span>
         {{ app.device }} · {{ app.deviceOnline ? 'ONLINE' : 'OFFLINE' }}
       </span>
