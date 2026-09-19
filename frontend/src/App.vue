@@ -5,9 +5,11 @@ import AppHeader from './components/AppHeader.vue'
 import { useScanStore } from './store/scan'
 
 const scan = useScanStore()
+const staticDeploy = import.meta.env.VITE_STATIC_DEPLOY === '1'
 
 onMounted(() => {
-  scan.loadScans().catch(() => {})
+  // GitHub Pages 静态版不请求不存在的 /api；CSV、BLE 与 WASM 拟合均为浏览器本地链路。
+  if (!staticDeploy) scan.loadScans().catch(() => {})
 })
 </script>
 
