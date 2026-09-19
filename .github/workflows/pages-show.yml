@@ -1,9 +1,10 @@
-name: Deploy docs/show to GitHub Pages
+name: Deploy LCR app + theory to GitHub Pages
 
 on:
   push:
     branches: [main]
     paths:
+      - "frontend/**"
       - "docs/show/html-to-ppt/**"
       - ".github/workflows/pages-show.yml"
   workflow_dispatch:
@@ -28,13 +29,44 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Prepare static site
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Build static frontend
+        working-directory: frontend
+        env:
+          LCR_PUBLIC_BASE: /LCR-Analyzer-WebSite/app/
+          VITE_STATIC_DEPLOY: "1"
+          VITE_THEORY_URL: /LCR-Analyzer-WebSite/
+        run: pnpm build
+
+      - name: Prepare Pages site
         shell: bash
         run: |
+          set -euo pipefail
           rm -rf _site
-          mkdir -p _site
+          mkdir -p _site/app
+
+          # Keep the algorithm presentation at the existing project-root URL.
           cp -a docs/show/html-to-ppt/. _site/
           cp _site/slides.html _site/index.html
+
+          # Publish the full Vue/WASM application under /app/.
+          cp -a frontend/dist/. _site/app/
+
           touch _site/.nojekyll
 
       - name: Configure GitHub Pages
