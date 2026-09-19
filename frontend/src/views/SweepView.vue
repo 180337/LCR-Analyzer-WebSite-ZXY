@@ -21,6 +21,7 @@ import { parseHCsv, type TwoPortParseResult } from '../lib/twoPortCsv'
 const store = useScanStore()
 const { measurements, currentId } = storeToRefs(store)
 const device = useDeviceStore()
+const staticDeploy = import.meta.env.VITE_STATIC_DEPLOY === '1'
 const p = computed(() => getPalette())
 
 const measured = computed(() =>
@@ -178,20 +179,26 @@ const hNyqOpt = computed(() => {
       </div>
     </section>
 
-    <ScanBar />
-    <div v-if="!currentId" class="panel empty">
-      <LineChart />
-      <div>选择一个扫描查看扫频结果。</div>
-    </div>
-    <template v-else>
-      <FigBlock no="Fig. 1" title="幅频特性 |Z|(f)" unit="对数横轴 · 误差棒 = ±1σ"
-        caption="实心点为测量值（每点由该频率下的时域正弦拟合得到），细竖线为双通道残差传播出的 1σ 不确定度。">
-        <EChart :option="magOpt" :height="320" /></FigBlock>
-      <FigBlock no="Fig. 2" title="相频特性 ∠Z(f)" unit="对数横轴">
-        <EChart :option="phaseOpt" :height="260" /></FigBlock>
-      <FigBlock no="Fig. 3" title="Nyquist 图" unit="Re(Z) − (−Im(Z))"
-        caption="容性弧落在上半平面（电化学惯例）。散点为测量结果。">
-        <EChart :option="nyqOpt" :height="340" /></FigBlock>
+    <template v-if="!staticDeploy">
+      <ScanBar />
+      <div v-if="!currentId" class="panel empty">
+        <LineChart />
+        <div>选择一个扫描查看扫频结果。</div>
+      </div>
+      <template v-else>
+        <FigBlock no="Fig. 1" title="幅频特性 |Z|(f)" unit="对数横轴 · 误差棒 = ±1σ"
+          caption="实心点为测量值（每点由该频率下的时域正弦拟合得到），细竖线为双通道残差传播出的 1σ 不确定度。">
+          <EChart :option="magOpt" :height="320" /></FigBlock>
+        <FigBlock no="Fig. 2" title="相频特性 ∠Z(f)" unit="对数横轴">
+          <EChart :option="phaseOpt" :height="260" /></FigBlock>
+        <FigBlock no="Fig. 3" title="Nyquist 图" unit="Re(Z) − (−Im(Z))"
+          caption="容性弧落在上半平面（电化学惯例）。散点为测量结果。">
+          <EChart :option="nyqOpt" :height="340" /></FigBlock>
+      </template>
     </template>
+    <div v-else-if="!deviceH" class="panel empty">
+      <LineChart />
+      <div>静态版不连接 Python 历史扫描服务；请使用上方 BLE 设备导入双端口数据。</div>
+    </div>
   </div>
 </template>
