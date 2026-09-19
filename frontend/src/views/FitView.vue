@@ -39,6 +39,7 @@ const palette = computed(() => getPalette())
 const store = useScanStore()
 const { scans } = storeToRefs(store)
 const device = useDeviceStore()
+const staticDeploy = import.meta.env.VITE_STATIC_DEPLOY === '1'
 
 /** 蓝牙按钮动态文案（区分 busy 各阶段） */
 const deviceBusyLabel = computed(() => {
@@ -575,14 +576,16 @@ function valueUnit(kind: string): string {
             <input v-model.number="demoNoise" type="range" min="0" max="2" step="0.1" style="width: 90px" />
           </label>
           <button class="btn" type="button" @click="genDemo"><FlaskConical />生成示例</button>
-          <span class="sep" />
-          <select v-model="scanSel" class="scan-select">
-            <option value="" disabled>选择历史扫描…</option>
-            <option v-for="s in scans" :key="s.id" :value="s.id">
-              {{ s.id }} · {{ s.note || s.device }} · {{ s.measurement_count }} 点
-            </option>
-          </select>
-          <button class="btn" type="button" :disabled="!scanSel" @click="importScan"><History />导入扫描</button>
+          <template v-if="!staticDeploy">
+            <span class="sep" />
+            <select v-model="scanSel" class="scan-select">
+              <option value="" disabled>选择历史扫描…</option>
+              <option v-for="s in scans" :key="s.id" :value="s.id">
+                {{ s.id }} · {{ s.note || s.device }} · {{ s.measurement_count }} 点
+              </option>
+            </select>
+            <button class="btn" type="button" :disabled="!scanSel" @click="importScan"><History />导入扫描</button>
+          </template>
           <div class="spacer" />
           <button class="btn ghost sm" type="button" :disabled="!points.length" @click="exportCsv">
             <Download />导出 CSV
@@ -591,7 +594,7 @@ function valueUnit(kind: string): string {
         <div v-if="!points.length" class="dropzone" @dragover.prevent @drop.prevent="onDrop">
           <Upload />
           <div>拖入或点击「上传 CSV」载入测量文件 —— 每行 <code>f, Re(Z), Im(Z)</code></div>
-          <div class="hint">也可用「生成示例」或从历史扫描导入</div>
+          <div class="hint">{{ staticDeploy ? '也可用「生成示例」或通过 BLE 直接从 ESP32 导入' : '也可用「生成示例」或从历史扫描导入' }}</div>
         </div>
         <template v-else>
           <div class="row tight">
