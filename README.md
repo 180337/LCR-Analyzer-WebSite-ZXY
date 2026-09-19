@@ -1034,7 +1034,33 @@ conda run -n lcr python -m app.services.simulator \
 
 ---
 
-## 17. 代码真源与进一步阅读
+## 17. GitHub Pages 静态站点
+
+同一套仓库现在同时发布两个 GitHub Pages 入口：
+
+- 算法理论展示：<https://invincible-summer.github.io/LCR-Analyzer-WebSite/>
+- 完整静态前端：<https://invincible-summer.github.io/LCR-Analyzer-WebSite/app/>
+
+静态前端由 `.github/workflows/pages-show.yml` 在 GitHub Actions 中执行 `pnpm build` 后发布，构建时使用项目站点基路径
+`/LCR-Analyzer-WebSite/app/`。路由采用 hash history，因此刷新 `#/fit`、`#/sweep` 等页面不会触发 GitHub Pages 的 SPA 404。
+
+GitHub Pages 版不运行 FastAPI / SQLite / WebSocket 后端。静态版默认进入电路辨识页，并只在导航中暴露可独立运行的浏览器功能：
+
+- CSV 上传、前端示例数据；
+- Web Bluetooth 直连 ESP32，接收 BLE GATT v1 单端口 / 双端口封存数据集；
+- C++/WASM Try1 / Try2 / Try3；
+- Bode / Nyquist、文档与 OSL 说明页。
+
+时域扫描历史、后端模拟器、实验历史数据库和 `/ws/live` 实时流仍属于本地完整栈，使用 `./start.sh` 启动。静态站不会向不存在的 `/api` 发起启动探测。
+
+Web Bluetooth 需要支持该 API 的浏览器、用户手势以及 secure context；GitHub Pages 的 `github.io` 站点由 HTTPS 提供。参考：
+[MDN Web Bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API)、
+[Vite GitHub Pages 部署说明](https://vite.dev/guide/static-deploy)、
+[GitHub Pages HTTPS](https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https)。
+
+---
+
+## 18. 代码真源与进一步阅读
 
 算法公开 API：[`AlgorithmLcr/include/lcr/lcr.hpp`](AlgorithmLcr/include/lcr/lcr.hpp)  
 节点导纳与解析 Jacobian：[`AlgorithmLcr/src/nodal.cpp`](AlgorithmLcr/src/nodal.cpp)  
