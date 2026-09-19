@@ -1,7 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
+const staticDeploy = import.meta.env.VITE_STATIC_DEPLOY === '1'
+
 const routes = [
-  { path: '/', redirect: '/analysis' },
+  // 静态 Pages 没有 Python 后端，默认进入完全在浏览器内运行的 WASM 拟合页。
+  { path: '/', redirect: staticDeploy ? '/fit' : '/analysis' },
   { path: '/analysis', name: 'analysis', component: () => import('./views/AnalysisView.vue'), meta: { title: '时域分析', sub: '采集 → 去直流 → 正弦拟合 → 残差 → 频谱 → 阻抗' } },
   { path: '/sweep', name: 'sweep', component: () => import('./views/SweepView.vue'), meta: { title: '扫频 Bode / Nyquist', sub: '跨频率 |Z|(f) · 相位(f) · 复平面' } },
   { path: '/fit', name: 'fit', component: () => import('./views/FitView.vue'), meta: { title: '电路辨识拟合', sub: 'C++ 引擎（WASM）· Try1 未知辨识 / Try2 已知元件 / Try3 已知拓扑' } },
