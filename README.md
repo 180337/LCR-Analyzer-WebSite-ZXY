@@ -81,14 +81,6 @@ cd ..
 
 需要注意，上传的独立 TFT_eSPI `User_Setup.h` 参考配置顶部使用了 `USE_HSPI_PORT`；当前仓库面向 **ESP32-S3 + Arduino-ESP32 3.3.11 + TFT_eSPI 2.5.43** 的 production 构建已经通过 `ino/tools/build_check.sh` 固定为 `USE_FSPI_PORT` / `SPI_PORT=2`。因此复现当前固件时应以 [ino/README.md](ino/README.md)、[docs/HARDWARE_MAPPING.md](docs/HARDWARE_MAPPING.md) 和构建脚本为最终真源，不应直接用旧的 `USE_HSPI_PORT` 宏覆盖 production 配置。
 
-随仓库公开的原始工程资料：
-
-- **接线表**：[docs/接线表.xlsx](docs/接线表.xlsx)
-- **嘉立创 EDA 专业版工程 1**：[docs/嘉立创EDA专业版电路图和电路板-1.epro2](docs/嘉立创EDA专业版电路图和电路板-1.epro2)
-- **嘉立创 EDA 专业版工程 2**：[docs/嘉立创EDA专业版电路图和电路板-2.epro2](docs/嘉立创EDA专业版电路图和电路板-2.epro2)
-
-两份 `.epro2` 上传件经 SHA-256 校验内容完全相同；这里仍分别保留两个入口，以忠实保存本次提供的原始资料。
-
 ## 项目结论边界
 
 本项目面向的是从有限频点的端口频率响应中恢复**能够解释数据的候选网络模型及其诊断信息**。单端口只观察外部驱动点行为，不直接观察内部节点，因此不同物理网络可能表现为同一个或近似相同的端口响应。项目会保留候选、等价类、搜索完成度与可辨识性信息，不把最低误差结果自动描述为“唯一真实内部接线”。
