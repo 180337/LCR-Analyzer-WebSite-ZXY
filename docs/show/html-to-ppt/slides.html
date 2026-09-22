@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>LCR 阻抗测量与电路辨识 · Try1–Try3 算法理论</title>
+<title>多功能LCR测量仪 · 硬件部分与 Try1–Try3 算法理论</title>
 <link rel="stylesheet" href="assets/katex/katex.min.css">
 <script defer src="assets/katex/katex.min.js"></script>
 <script defer src="assets/katex/contrib/auto-render.min.js"></script>
@@ -224,6 +224,86 @@ code.mono {
 }
 .twocol-eq { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 26px; }
 
+/* ---------- hardware section ---------- */
+.slide.hw-intro .card {
+  flex: 0 0 auto; padding: 26px 34px;
+}
+.slide.hw-intro .card p {
+  font-size: 19.5px; line-height: 2.02; margin: 0; text-align: justify;
+  color: var(--ink);
+}
+.hw-stage {
+  flex: 1 1 auto; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.hw-photowrap { position: relative; height: 100%; max-height: 540px; }
+.hw-photowrap img { height: 100%; width: auto; border-radius: 12px; display: block; }
+.anno {
+  position: absolute; display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,.95); border: 1.5px solid #93c5fd; border-radius: 999px;
+  padding: 3px 13px; font-size: 13.5px; font-weight: 700; color: #1e3a5f;
+  box-shadow: 0 2px 10px rgba(15,23,42,.22); white-space: nowrap; z-index: 2;
+}
+.anno.two-line { white-space: normal; border-radius: 15px; text-align: center; line-height: 1.35; }
+.anno i {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+  flex: 0 0 auto; box-shadow: 0 0 0 3px rgba(37,99,235,.18);
+}
+.anno.rev { flex-direction: row-reverse; }
+.uigrid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px;
+  flex: 1 1 auto; min-height: 0; align-content: stretch;
+}
+.uigrid figure {
+  margin: 0; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; min-height: 0;
+}
+.uigrid figure img {
+  max-height: 236px; width: auto; max-width: 100%;
+  border-radius: 8px; border: 1px solid var(--line);
+  box-shadow: 0 2px 8px rgba(15,23,42,.10);
+}
+.figcap {
+  font-size: 12.5px; color: var(--muted); font-weight: 600; margin-top: 6px;
+}
+.hw-figrow {
+  flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center;
+}
+.hw-figrow img {
+  max-width: 100%; max-height: 100%; border-radius: 10px;
+  border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(15,23,42,.08);
+}
+.hw-spec p { margin: 6px 0; line-height: 1.62; }
+.hw-spec p b { color: var(--accent-dark); }
+.hw-spec .cond { padding-left: 14px; color: var(--ink2); }
+.hw-bottomrow { display: flex; gap: 16px; min-height: 0; }
+.hw-figcard {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 8px 10px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 3px rgba(15,23,42,.05);
+}
+.hw-figcard img { max-width: 100%; max-height: 100%; border-radius: 6px; }
+.slide.hw-cl { padding: 28px 60px 50px 60px; }
+.slide.hw-cl .titlebar { margin-bottom: 10px; }
+.slide.hw-cl .col { gap: 10px; }
+.slide.hw-cl .hw-bottomrow { gap: 12px; }
+.slide.hw-cl .hw-figcard { padding: 6px 8px; }
+.slide.hw-figpage { padding: 28px 60px 50px 60px; }
+.slide.hw-figpage .titlebar { margin-bottom: 10px; }
+.triofigs {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px; flex: 1 1 auto; min-height: 0; align-content: center;
+}
+.triofigs figure {
+  margin: 0; display: flex; flex-direction: column; align-items: center;
+  gap: 8px; min-height: 0; min-width: 0;
+}
+.triofigs img {
+  max-width: 100%; max-height: 330px; object-fit: contain;
+  border-radius: 10px; border: 1px solid var(--line);
+  box-shadow: 0 2px 10px rgba(15,23,42,.10);
+}
+
 /* ---------- cover ---------- */
 .slide.cover {
   background:
@@ -247,11 +327,222 @@ code.mono {
 </head>
 <body>
 
+<!-- ================= H1 · 总标题 ================= -->
+<section class="slide cover">
+  <div class="kicker">LCR ANALYZER · MULTIFUNCTIONAL LCR METER</div>
+  <h1>多功能LCR测量仪</h1>
+  <h2>张行言&amp;杨钧富队</h2>
+  <div class="meta">2026/9/19</div>
+  <svg class="wave" width="360" height="120" viewBox="0 0 360 120">
+    <path d="M0,60 C30,10 60,10 90,60 S150,110 180,60 S270,10 300,60 S345,105 360,60"
+          fill="none" stroke="#7dd3fc" stroke-width="2.5"/>
+    <path d="M0,60 C30,25 60,25 90,60 S150,95 180,60 S270,25 300,60 S345,92 360,60"
+          fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".55"/>
+  </svg>
+  <div class="footer" style="border-color:rgba(125,211,252,.25); color:#93c5fd;">
+    <span>LCR Analyzer · 多功能LCR测量仪</span><span class="pageno">1 / 25</span>
+  </div>
+</section>
+
+<!-- ================= H2 · 作品简介 ================= -->
+<section class="slide hw-intro">
+  <div class="titlebar">
+    <div class="kicker">作品综述 · 作品简介</div>
+    <h1 class="title">作品简介</h1>
+  </div>
+  <div class="hw-stage">
+    <div class="card" style="max-width:1060px">
+      <p>本作品是一个LCR测量仪，可以在10-10kHz内几乎任意频点测量待测元件的复阻抗并自动计算串并联等效阻容感。此外还支持双端口网络幅频特性和相频特性测量，以及10-10kHz正弦波发生器功能。本作品可以将测量得到的数据通过BLE发送到专用网页上进行可视化展示，同时网页也具备单端口网络拟合，可以通过多频点扫频数据拟合出等效电路结构。</p>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · 作品综述</span><span class="pageno">2 / 25</span></div>
+</section>
+
+<!-- ================= H3 · 功能介绍（整机） ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">作品综述 · 功能介绍</div>
+    <h1 class="title">功能介绍</h1>
+  </div>
+  <div class="hw-stage">
+    <div class="hw-photowrap">
+      <img src="assets/hw/device.jpg" alt="整机外观与接口标注">
+      <div class="anno" style="left:calc(100% + 10px); top:24.3%; transform:translate(0,-50%)"><i></i>双端口测试输入</div>
+      <div class="anno" style="left:calc(100% + 10px); top:58.4%; transform:translate(0,-50%)"><i></i>待测元件接口&amp;正弦波输出</div>
+      <div class="anno rev" style="left:3.5%; top:34.4%; transform:translate(0,-50%)"><i></i>5V圆口/接线端子供电</div>
+      <div class="anno" style="left:44%; top:79%; transform:translate(-50%,0)"><i></i>显示屏&amp;操作按钮</div>
+      <div class="anno rev" style="left:-13.5%; top:54.3%; transform:translate(0,-50%)"><i></i>编码器</div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · 作品综述</span><span class="pageno">3 / 25</span></div>
+</section>
+
+<!-- ================= H4 · 功能介绍（界面与功能） ================= -->
+<section class="slide compact">
+  <div class="titlebar">
+    <div class="kicker">作品综述 · 功能介绍</div>
+    <h1 class="title">功能介绍</h1>
+  </div>
+  <div class="cols">
+    <div class="col" style="flex:1.04 1 0">
+      <div class="card">
+        <h3>操作流程</h3>
+        <p style="margin:0; text-align:justify; line-height:1.66">上电后，仪器将显示菜单界面，可以通过编码器旋转或上下按钮（K1,K2）调节菜单选项，并通过确定按钮（K4）选择选项。此后，仪器将进入频率调节界面，此时可通过上下按钮选择要更改的位，并通过编码器旋转增减该位的数字。K3为返回按键，可以返回上一级菜单或停止测量。</p>
+      </div>
+      <div class="card">
+        <h3>五大功能</h3>
+        <p style="margin:0; text-align:justify; line-height:1.6">功能1是未知元件判断，仪器将在用户指定的范围内扫描5个频点，分别测量，并根据5个频点中占多数的特性（容性/感性/阻性）定性此元件。</p>
+        <p style="margin:8px 0 0 0; text-align:justify; line-height:1.6">功能2是单频点测量，仪器将在给定的频点进行测量，其中自动切换从22欧姆至1M欧姆的10个跨阻放大档位以及从1到33的4个电压电流放大档位以获取不削顶失真的最大峰峰值，并给出串并联阻容感值等数据。</p>
+        <p style="margin:8px 0 0 0; text-align:justify; line-height:1.6">功能3、4是单端口阻抗扫频测量和双端口波特图扫频测量，用户输入始末频率以及扫频密度，仪器将自动扫频测量并在结束后显示上传界面。上传时将启动BLE并将数据传到网页上进行可视化展示，BLE将在上传完毕后自动关闭以防影响测量。</p>
+        <p style="margin:8px 0 0 0; text-align:justify; line-height:1.6">功能5是正弦信号发生，仪器将以确定按钮为输出启停按钮，按照用户输入的频率输出正弦波。</p>
+      </div>
+    </div>
+    <div class="col" style="flex:1 1 0">
+      <div class="uigrid">
+        <figure><img src="assets/hw/ui-menu.jpg" alt="菜单界面"><figcaption class="figcap">菜单界面</figcaption></figure>
+        <figure><img src="assets/hw/ui-freq.jpg" alt="频率调节界面"><figcaption class="figcap">频率调节界面</figcaption></figure>
+        <figure><img src="assets/hw/ui-measure.jpg" alt="测量界面"><figcaption class="figcap">测量界面</figcaption></figure>
+        <figure><img src="assets/hw/ui-upload.jpg" alt="上传界面"><figcaption class="figcap">上传界面</figcaption></figure>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · 作品综述</span><span class="pageno">4 / 25</span></div>
+</section>
+
+<!-- ================= HD · 硬件部分子标题页 ================= -->
+<section class="slide cover">
+  <div class="kicker">LCR ANALYZER · HARDWARE</div>
+  <h1>硬件部分</h1>
+  <h2>总体方案 · 信号链设计 · 实测数据</h2>
+  <div class="meta">硬件总体方案框图 · 实测数据（R / C / L / 电容容量-频率特性 / 波特图）</div>
+  <svg class="wave" width="360" height="120" viewBox="0 0 360 120">
+    <path d="M0,60 C30,10 60,10 90,60 S150,110 180,60 S270,10 300,60 S345,105 360,60"
+          fill="none" stroke="#7dd3fc" stroke-width="2.5"/>
+    <path d="M0,60 C30,25 60,25 90,60 S150,95 180,60 S270,25 300,60 S345,92 360,60"
+          fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".55"/>
+  </svg>
+  <div class="footer" style="border-color:rgba(125,211,252,.25); color:#93c5fd;">
+    <span>LCR Analyzer · 硬件部分</span><span class="pageno">5 / 25</span>
+  </div>
+</section>
+
+<!-- ================= H5 · 硬件总体方案 ================= -->
+<section class="slide hw-figpage">
+  <div class="titlebar">
+    <div class="kicker">硬件部分 · 总体方案</div>
+    <h1 class="title">硬件总体方案框图<sup class="cite"><a href="#ref-20" title="bitluni, ESP32-S3-VGA">[20]</a></sup></h1>
+  </div>
+  <div class="hw-figrow">
+    <img src="assets/hw/overview.png" alt="硬件总体方案框图（信号链总览）">
+  </div>
+  <div class="footer"><span>LCR Analyzer · 硬件部分</span><span class="pageno">6 / 25</span></div>
+</section>
+
+<!-- ================= H6 · 实测数据-R ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">硬件部分 · 实测数据</div>
+    <h1 class="title">实测数据-R</h1>
+  </div>
+  <div class="cols">
+    <div class="col narrow" style="flex:0.72 1 0; justify-content:center">
+      <div class="card hw-spec">
+        <p><b>R测量范围：</b>220毫欧-10兆欧</p>
+        <p><b>R误差：</b></p>
+        <p class="cond">100Hz 1k-300k:±1%</p>
+        <p class="cond">100Hz 47k-10M:±2%</p>
+        <p>大部分阻值和频率误差±3%以内，<br>大部分阻值和频率下相位差误差±1°以内。</p>
+      </div>
+      <div class="note green">对R的测量中，测量值与真实值均接近。</div>
+    </div>
+    <div class="col" style="flex:1.5 1 0">
+      <div class="hw-figcard" style="flex:1 1 auto; padding:10px 14px">
+        <img src="assets/hw/data-r.png" alt="R 实测数据表">
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · 硬件部分</span><span class="pageno">7 / 25</span></div>
+</section>
+
+<!-- ================= H7 · 实测数据-C/L ================= -->
+<section class="slide compact">
+  <div class="titlebar">
+    <div class="kicker">硬件部分 · 实测数据</div>
+    <h1 class="title">实测数据-C/L</h1>
+  </div>
+  <div class="cols">
+    <div class="col" style="flex:0.62 1 0">
+      <div class="card hw-spec">
+        <p><b>C测量范围：</b>1pF-6.8mF</p>
+        <p><b>C误差：</b></p>
+        <p class="cond">10-100Hz下，3pF-100uF电容测量值均与标称值相差10%以内。</p>
+        <p><b>L测量范围：</b>680nH-2H</p>
+        <p><b>L误差：</b></p>
+        <p class="cond">10Hz下，电感直流电阻与万用表直流测试基本一致。<br>10kHz下，5.6uH-100mH电感测量值均与标称值相差10%以内。</p>
+      </div>
+      <div class="note green">对L/C的测量，除相位差过小或阻抗模长过大/过小的数据外，测量值与标称值均接近。</div>
+    </div>
+    <div class="col" style="flex:1.52 1 0">
+      <div class="hw-figcard" style="flex:1 1 0; padding:8px 12px">
+        <img src="assets/hw/data-cl.png" alt="C/L 实测数据表">
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · 硬件部分</span><span class="pageno">8 / 25</span></div>
+</section>
+
+<!-- ================= H7b · 实测数据-电容容量随频率变化 ================= -->
+<section class="slide hw-cl">
+  <div class="titlebar">
+    <div class="kicker">硬件部分 · 实测数据</div>
+    <h1 class="title">实测数据-电容容量随频率变化</h1>
+  </div>
+  <div class="cols">
+    <div class="col" style="flex:0.5 1 0; justify-content:center">
+      <div class="card">
+        <p style="margin:0; text-align:justify; line-height:1.9">本仪器可以测量电容容量随频率的变化趋势。右图为测得相近容量的4个电容（除CBB为155外均为105）剩余容量随频率的变化趋势。由图可知，容量稳定性从高到低排序为CBB，独石电容2，有极性电解电容，独石电容1。</p>
+      </div>
+    </div>
+    <div class="col" style="flex:1.5 1 0">
+      <div class="hw-figcard" style="flex:1 1 0; padding:8px 12px">
+        <img src="assets/hw/data-cfreq.png" alt="电容剩余容量随频率变化趋势">
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>LCR Analyzer · 硬件部分</span><span class="pageno">9 / 25</span></div>
+</section>
+
+<!-- ================= H7c · 正弦输出 ================= -->
+<section class="slide">
+  <div class="titlebar">
+    <div class="kicker">硬件部分 · 功能5 正弦信号发生</div>
+    <h1 class="title">正弦输出</h1>
+  </div>
+  <div class="triofigs">
+    <figure><img src="assets/hw/sine-12hz.jpg" alt="12 Hz 正弦输出波形"><figcaption class="figcap">12 Hz 输出波形</figcaption></figure>
+    <figure><img src="assets/hw/sine-123hz.jpg" alt="123 Hz 正弦输出波形"><figcaption class="figcap">123 Hz 输出波形</figcaption></figure>
+    <figure><img src="assets/hw/sine-1234hz.jpg" alt="1234 Hz 正弦输出波形"><figcaption class="figcap">1234 Hz 输出波形</figcaption></figure>
+  </div>
+  <div class="footer"><span>LCR Analyzer · 硬件部分</span><span class="pageno">10 / 25</span></div>
+</section>
+
+<!-- ================= H8 · 实测数据-波特图测量 ================= -->
+<section class="slide hw-figpage">
+  <div class="titlebar">
+    <div class="kicker">硬件部分 · 实测数据</div>
+    <h1 class="title">实测数据-波特图测量</h1>
+  </div>
+  <div class="hw-figrow">
+    <img src="assets/hw/bode.png" alt="双端口波特图实测结果">
+  </div>
+  <div class="footer"><span>LCR Analyzer · 硬件部分</span><span class="pageno">11 / 25</span></div>
+</section>
+
 <!-- ================= 1 · cover ================= -->
 <section class="slide cover">
-  <div class="kicker">LCR ANALYZER · ALGORITHM THEORY</div>
+  <div class="kicker">LCR ANALYZER · SOFTWARE / ALGORITHM THEORY</div>
   <h1>LCR 阻抗测量与电路辨识</h1>
-  <h2>Try1–Try3：统一前向模型、图搜索与参数优化</h2>
+  <h2>软件部分 · Try1–Try3：统一前向模型、图搜索与参数优化</h2>
   <div class="coverformula">
     给定扫频测量 \(Z(f_k)\)，寻找电路图 \(G\) 与参数 \(\theta\)，使
     \(\;Z_{\text{calc}}(f_k)=b^{\mathsf T}Y^{-1}(f_k)\,b\;\) 逼近测量
@@ -267,7 +558,7 @@ code.mono {
           fill="none" stroke="#38bdf8" stroke-width="1.5" opacity=".55"/>
   </svg>
   <div class="footer" style="border-color:rgba(125,211,252,.25); color:#93c5fd;">
-    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">1 / 14</span>
+    <span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 25</span>
   </div>
 </section>
 
@@ -302,7 +593,7 @@ code.mono {
       <div class="note blue">所有候选电路均代入<b>同一前向方程</b>计算 \(Z(f)\)，并与测量数据统一比较；这是三个引擎共享的数学骨架。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">2 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 25</span></div>
 </section>
 
 <!-- ================= 3 · circuit as graph ================= -->
@@ -331,7 +622,7 @@ code.mono {
       <div class="note">有了这一层抽象，"搜索电路结构"就变成<b>搜索图</b>：Try1/Try2 的离散部分都在图的组合空间上进行。</div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">3 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">14 / 25</span></div>
 </section>
 
 <!-- ================= 4 · stamp ================= -->
@@ -372,7 +663,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">4 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">15 / 25</span></div>
 </section>
 
 <!-- ================= 5 · Z = b'Y^-1 b ================= -->
@@ -408,7 +699,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">5 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">16 / 25</span></div>
 </section>
 
 <!-- ================= 6 · residual & metrics ================= -->
@@ -454,7 +745,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">6 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">17 / 25</span></div>
 </section>
 
 <!-- ================= 7 · try3 part 1 ================= -->
@@ -497,7 +788,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">7 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">18 / 25</span></div>
 </section>
 
 <!-- ================= 8 · try3 part 2 ================= -->
@@ -557,7 +848,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">8 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">19 / 25</span></div>
 </section>
 
 <!-- ================= 9 · try2 part 1 ================= -->
@@ -604,7 +895,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">9 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">20 / 25</span></div>
 </section>
 
 <!-- ================= 10 · try1 part 1 ================= -->
@@ -644,7 +935,7 @@ code.mono {
       </div>
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">10 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">21 / 25</span></div>
 </section>
 
 <!-- ================= 11 · try1 sample ================= -->
@@ -656,7 +947,7 @@ code.mono {
   <div class="card" style="flex:1; display:flex; align-items:center; justify-content:center; padding:12px 14px;">
     <img alt="Try1 拟合样例截图" style="width:100%; max-height:535px; object-fit:contain; border-radius:8px;" src="data:image/webp;base64,UklGRqogAABXRUJQVlA4IJ4gAABw+wCdASogA6cBPtFmrFCoJaSnI/IqWQAaCWlu+AlgODDuUjZ8b1S+bajDxcYLM/WfxqfQoA3oj/5W7n54HztN9V6K/1lf97kx/mX/afrZ4IZBO1f7eo62SPzl1CMTOuv17zBfZiNTk0P+Dwmfxn/j9gX9M8s79l9Q775e24EDt5Bz6TnwGnQ0YKbtKt/iD0fBRfZfJOgE8uoeE3CdrUjpYC6CrIE7WpHSwF0FWQJ2tSOlgLoKsgTtakZ+AJw0DoWU+zcri0Uf+xRppkfULkdXp8SuX0571AiTIHdhuSGtSuSbj46n4rPh6YLYmv2SgqAro4mQMU5vyT8XajnIDdN/fwmTmxwveSJQQiVFkFNPI7Bi7Gzurai6aeR2DF2NndW1FuGMLJAJpv/ELkgs11hKvKVrA4PhIt/xxTVahcZykBc/E3wD+KpO8OiWJXZnwJ+mPjPyA7JX6EyewHZK/QmT12myAHrQ11Ecb5BUCVw0zWsaxqITXoN0OkdO0CRAPJMqNkG8LVbwTG4lrlhV3tzXmYkOSGC+gNAAOGJs114NbpyI+ecreaE6U/KLEUx5z07Hxp3uC0LvOyp8cPtNn5Adkr9CKCGM+GD3u+pjQY2tDl/NGNS47F6HE5PcCOtPjgpYAWo5Z0S0f6hKULyoZ0tL0w/Tt6ls4I8fPS9hCg+7wY0N0R1l/FsPFnCd6OE42maFXibtxFNnyqmu8lsvTBXvlZp513ZOrNl3lHS0tLS0ujerE3rYJfDAmCIf7BSQj9K/PGbxhIVoMIsO7VbUs5jnbt+/o1RSvq5WSbHGIWIpDX2kKS95yyi6Hs2N4kN8vPC2UQcSXiTSubREiqAm4+RYFymqvkEX9mf7KaIEIXoiB3llxLmaUl+zMkKkZbSBDpn5TGxMR3+s4NaYqci31QXS8IVOJTXnchdQlABAgweneUtX88hotKFQTGBnDSwJIFygDqI5RFccL0R2xfQ+mPjPVNngbWRrGkvemAH1sYdVWlXDeFNbqryRTFPmxtg7Dg8H1twK1kImkPo0WZEnxqin86p3VCZZWT0vwx8GI1wrIOUJsJr/tG55C9mtxrFb9Evpj4wqJi5CemcH6vhyk37XFj74Ip2L3i6etQJfbwSYF+U1kAYqmaqDMQOct1dJBhAfaDPyA7JPWqsoLcPcfAlnh5rYNbqSbQ450GOCKXqVe/QmT2A7JX6EyewHZK/QmT2A7JX6Bvh96NgZf5iHCxGPF9K4pIgPJgmThMY8jwaKQMjddyvZ267JqirsbpFBXYx6foglMs+QkZLTlMdqUjTEfof8DF5NeXPcJloVMFEsUYNazV3aymLrjXqYSULZMvNTdDreCCka3yrjftWmPjPyKNb5VxzTfSjNqSY3dfUBkzkzYj/PjdXN+cNurm3cBlDPIQBU6TIkg43VzfnD1WEr++Z0He3Dbq5vzhtgFXyCplka96hKz9mnntGa8+Oc6Fz4h5Nm72CoUyJIOarCV97E/CmCoUyJION0W2UWkhpZ2lPVa2tm7SW6VuGDdERjvzAi+xB9vXx62YASQcbq5wGqmTmCp58ib/ASQcbq5uGRPvS30nWRjnhsoQ+DrQEkkqcUd3LJkSQcbq5v0pcF3KVzJkbWOeAf4CSDjdXOBzH/6gBJBxurm/OG67YZM5M2ERJl9U/eXn5rOiBJVVhv4tzCCTpfGfkB12YKuXrscv5/4/YHI3o3IJi1EGT2A7JXIrMaIGwOQj+QOMVD5n+tddkh4LIDslfeWelPcbugcdLR8lyLCCJfY2oEXdq+leXIxSaLwtOWtwe60E5T2eHYIPuUv6jJFTI2vhsz3hKEE7Ohts1JASNFDSD+B3meFaXnLPCejCKBo3R0dPrkVcdnFWa+87VffmkUQvlMjn2Er72J9+FpTMUWI40GxVV4mHh1g/fdLOXRvMAz/0UrFu7OpnAG85HOxvZpoGMbkNLlUWypbM9Ic3taFewuq7ySCIVqKZLVY59hK+9igrspDMiK0WCUrMknjnyjSyU2KQk67kMxV9mOBKuPR7J5U87efQcl/V5hNKAPFGg78x1jEG7JySBPzy2NcyN/XxIxXQENXa6JqFvFGAG1iAauzLTBHN+99vICOz9GRVWgte7C33CwDD5Afo6TM6U1hauz8aAhGd1xwaH21zBhqBp7pm+MXIaIguQAz8gI7vpWmcBCMyhg2ieKMANoBEnD1GG5wR9XsS00u1bK8o0GN2sLu15Vn+lIjPrXmwTKAffgJzw6YWKtotRRqNGXxYAzkVRUB4gGDgGko4S8a8c8ArkwVDUlXlhG+aTmfOTDAsG5AMdYvtHVygUURdUjZn2mabkDfUJ9Oxd9hQ0xd/8gOyV9b5ETJjUq2M29QW+07g78BrP0xrtCRVfnEJrNCkH5Cse2NLTb/kfrcO4oR+A2scjsSrFcfINbro0Qj9gzpJ8pyVnQ+ABkiVB7DEvk8BpaLZx2r7Ypt56Je06lvQv5qIHlwfp+hVAZZB44OEK97x4iUv0gtFbj1RoBpmiMFuaYlXG8Ep3+zXIRbjsolWB2XGQGjAUQgnL+ZCTH1NzrSqfWw6NnyPnbNcNGdu1VVk3WjdAHnYyOHnbxwbVhujkWR1rs/oopumKH/PnusjB2bk2iDF55cYnGIvR0tLS0dU8cGtmsFMEWOJjUTaBxplTLxvLheAzOQ09NmiUxGM8AAP6var3wkTLLCM/8Ue1n+i/16b9CjPrAkGy35y7GtX2jao/CLscIoVUUeA0468w76R4PsJpUw/SVtVg5AsHq4lLffEbEPCJ7jkF+E379VyeqvFNt+H9a5WDtWXTeVyprixOkMkZVpepu1kKZXnqA7fm0Wif7PqnjiLI0qEJ5SiZ8/uoblRIdZ5m2SWJgepqjmbHT3Pch7kPch7kPch7kPch7kPch7kPch7kPch7kPch7kPcyvYNLl+b4wD5OzkxYgnZYM8xbAJnUglShRTr+HTtUGKg/VqBAAc8R6T6Q+zQfDuRxwtspUpm4nqW5ZTZBdoBcYZrNWu+sIufKGpJBmOCA4HmtfSQpPWEyCSRpNiGm1ZdqP5ezv0tWKK1T35u9Wgqs77qsmvNgGqW8Aw7+KqM/2CV1GDU9JbefOFvPn+BZC/v+2tztlE3mlrSkBWkwWi8eOM32irUOx+zawiW8OMUfDndt+DeRbgSgbgpOc8GJOV8ojtNZPNRZE5z01noiKHZfFepM5XdnYxGLdYiCpvpFN+zA2SczwAW+wF9QosB1WgZxBmiaLZhOKdEtcpCkGisoQR3boWEPfPr0PJRdIC/AnVSstBA+JkdOVTfsD1snFfXmC0+EAXeU0inset8kPnU7tfvK0SMLreu1RorRXnRCfxfjqJbIq4mQyeohBj8rJQxJeIsINBEHG2n1eDPlDW7GQixD5doF9hClJCvGTjyCvEoaOFtEej4R809J9bya2W8GduaMof0GIggAAAK6MsByRXpSdrxwWVSI3nmd/9WJlc2IEGusOl2/vxABylO0m2AurhovebJReCGrOgjdDm3GVtV8q2LmfcnhzyHU5kBxoJ/+ijnCh7YTzA+7+IH3APha4iBB1q4+QoOT+NWBfgDJOmj0B2Epl0BjpZsyMreNMpaaw/rsakcVmzNbsB/V25nK5dcGtvdK4UNyjzZzxmbLrnm/pPk899PK3hU5NplMZ1U7pLA+Ub/fBgbp8KDPnaXPVOsHfJ6sR89tRc+/zonZFuv6+GX1xA7VxpJSLBEvHuGwtyErnUXvb3ZOIIMC5hmetP8DRLl7tfhd3XUpTbqVwaXBtu4wqX+F+YWo+ySiRg5WQnKWAACGCmHPYcDzabRAFbeuOhFXWFcDCF3Ao83tXMpS3jR8M/tVNsaW3q2urx9DCyrE/BcNgd9e7iz9tTbSfys9LaaClBsgSbnrv6M5ORhX8sRSabJlwScSNMK4FcjDtn5eSWw0IFgZe4ZcIouLGtkQLgfaaIMjWXLVjVQ0+LUhCRXfbr+aWFf5qxyOyBTxNjRsqIjDsIj+mPvuLftOGFkvk0SQ/ATvDqwerVR5TtcIZorAz1f/3aLMfba9Om+ghjrFgsaVx6hMuRIKeXqN1un6pWjINiYeDM906AjpW9xQTUrj1CZciQVD4mefTasamJGUfNMV+ahGV+/a9Z2whT3TPEIUPPutzN2elceoTLkSBgLG0GkIDDi4y0joc4yPrPq1KAgoeaVx6hMuRIJ+9U0XUNa5VJ2KvnfSuFjw4I3QMxFaQCcMpUv0ipDo1DxXVjkZsMUTFBNSuPUJlyI9kV2XM55+oE3377JBQGBigasdxDld3mfRrTlIncI+FBE/qsQlXg8bgyqNjdQKNKejHycNyogp7kQngijC6RS/AQz0TPOzbXPQI2VFsGKarvK/Aems03Zyt01bRpMJNVgKoc8Wo5QaCVAYzhC0OB7/hzs3R03ev+AVyvXFWZ4fkgWTNxq9LanvnPs3NA085RRuKOoSXK7JiLvCX+nnTdNqX+5QCWewMBLFSRn6v19CQocXUE4QfoS+9Bzi3z3BXCs6fkdY0ojLIujeRdt7KoB20tE25WtlO3OgddoMo6oyoZf9eak6cA6f5vwatQ1ilJgfDuRcDoL5C2s1Ex80WzImiU6qyT54rhO3LBbuiLHj7KwbE0iCShi4WlqHMLnC84sIvhAPM5ARuUyW25JQiPmYUXMfZTYUtKo4MOXnHcd+HNmMX8Cdm4HFXlKv1dQRPbIn5AoZ8W5y90V8Wd2PHkKQ5yhfQ1SRrdRJlUUPrBfpbkfqxSRpPnuDEebX3zndN9KhK4gNx/cBrq3IZMVXqvXD4JNS1EAS9uPLDu2An73RnMGpqRV0N2FK/Is6cmqlDsCJK1Lwjm5O8IrjTLZM9HEErK2w2fqQzzO/zKlOYMbbLUwF199/lqFyvM/pVr/i+JICfTlzHDa2HsH2SBgLzW+vobYRPior0RefX43v8u8Nj5OxYNTq4gui6In+hXWpsq+3/zUvhtANPcvDswz0V127iJGYpirD1AQSsYYjfPPQ+X84q4fGKPw230LK52nA+8L3lhUjZADvgmfFLAgcYTDpzhei9lD5ywaSWWSpdZRUjsqj7+jLOO5Pca1GD6dg9hkwDcJ6WtSDMmBNgyQou8k2cewSth2m6my8UCtBeDkWtT5YpjSaA8c1mNxaizJK6WCI6EjDKKyb2nHgBpPEXE+gCydfelcsgYwrBkEQikqN19qrnn/KuslZi7CsODFOQEqsm6F6zMGIYenpzGX/XRJWzmHIrQ6nuSk/8AiyWODMQ/88EUa0rmOzQhlPtYc3cHnQrwAkhZpa3eZyHCehiLABngtt6wA0xAtJwZt4I71K9YPdg7rVGsSu7cXqxBbvmm6+DZ2F31IwAJjyRFtvV4hGBRy9UhAQoymeQQY0mzknl4Us2G8sUYSwX8a5iXZ3P4plBpxy2n0l3hR0E2osfAjJaF4Rm2xP2EurvSwUq3b5KHc2yRCbWJY6BBV1CFqiixRKme+kJtyERlHEOI7LIL3CFGI+Gq27KarSZXBYwbebyP1OlztUDosF9FkKioTdgqQ5+S3Z915lOxrhE3ODjo31BfjmL1pfIrbuwVyfSuTxoiQPIDnwAzCvLRu1Z6md9+o/BX0OOpSZfcQri4sL8d3jHlrJ+Dch3jezfyaKl1+lcudM7TAhW2QO2PCYtYm6SvSmu7UUioaR9/krpaW1S61f83cPKN267XtBqkEgxhulQAh1fQURPUB9FPGYPsXNmprlQATja5ZA5I0tKliGffJPXa/GIOkKfcTB/6sabsrXOaCt8N/85UAVVi1wMrg9xWTC5HDuCeov07pecgWFDrFxktJ4Qs9Co0idwX5wasYkzSweB8ja4gHTKOdUX1llItjf9R0Ttp6wJzP5Ri4cFoGhtj/HaEd6+CbPz6b2nvD1QdNxmuF7lQt994U0COtSpy19MYVPEMMCD6ew6wK6VSmHwpJgJnil6n6I8om6FD2J065aSiBzjAIDaYpitP6CmLGDWKKrIZdSZFxedmoORUB7pXne8zcqAfuZOkN0Yfnz0wHR8/bTOrgMfk4lK4IMa3Kmy/1wrG1DMyllFHzkd+ztrFled2ghGLEbYihhhasWjcaZx2No93FaxzEU0nJL5fyszJUH431JL8XY837mtYVXrSUWRSDZmZoJ51eMoAqzz5hwoD8KdnAoDofAIfce7e6xAYjZ6PH0NtBtBMJnWsvsvK34TEFSpvkASDecKfzzebYhhEwkSjtVL2kBgjvOvD/mFjDvJeVD/ZV1fCq2t/aKy+6gwjBCJu/Wv6H7PiGM4Pb/Pu/4ntmyazT8j/RxsKNWO8iGUIbqi2d6YWcWHs/DbX4D0AkQmVtXxODT/+5xTb8XJZu3AUsr2ahBhWmrsupuNRdbq+dWncCkh3IuX8C0tPLcpj98ZnpWAJZiZgDgAAARl0CAw/phyP+TVoUN+QPF51i6w8+1EywpluCkF+8Jmq4uURM4MvUVShMBBzrtxXT9/P1kIDfn1Ic2FEhSmTDPCVxrSHjmyU0vLveRTjvTpq9zcXOrOG2b71ZrSfgKCnbWXcUAiZdd5A0u3NOgETLQRi/s+fyALzYX2MXaCvlfpT6eNV40xo2ZP4U1aR74JAMWL4NNAvlMzhZbJHiSQ17//7DHDlXlo+WV8B/gp4Wzkxg7xPR+g7KLnjRiBRIyERQzlNHvxixPFe+XkaAOfQnew/67Mq+SEBEADy4AC6qAK+q/l+8yleO0RtikeekMkFWdep9TaBz9VGTxm40FWLUkbKlZS8uf9euJs1hen7puv6LRFQWBG7npLZaP/HcFiueh/M30qD8QytOCKi+G7mz72cgH7crgCNkt4AHlUBXPsE7KwFaEImUiiRojZomaWYVrUORMks3Ih9Tl2uir/X5wtJy7SHW86Cz0lwkfTiOnPTP3AtNzyoVrp4vW92wAAAANbIADJpw3+00McWW2z2tBCYbRST2inEQQONIEpJ/sENXWwZOvd2Z+sj0wlvWFSgfbiR3BqTQAIbfW3AAdM5khkuq7JQspn5pkb3DZu7HumUw4QzEOtKu9aWGKQIG9tIUyY5zkTQdjts2lAQ/+23OqWxpgOB4yBpGGJr+ioF9lW6zc1qMqtiZDhY+y0mD4O4VOB9YMp8a7ZMPw8xnrwBydQlAA5lA3oM+JnDnASEHLdwuxgWa4BFjtKnZAMBRnT7qpDWGWrA0nS1QDPbaOBNpP5STuTwP4SFGNp9Y+ExRFLwc9iX7Gvc9W5CLmkzA/nwWGD2BJifS84zBExyaaJp3XDgVfaUFzrieQZYumluqk1HLdOHptqQi0B01+GTbvoyZbYUJ1K6VlWjOoVIrAXMfvBZPsGbDRAt0qHFHh2MzPyHbfN1LgJHQnwlgfAAXrwBKgBLVxFlcBDQ9sBlsUL8zBdS9E/tWSR0eudsOB8gGSgBP0j3fl9navqlgXDEwuWx/4OUW2lwF8v4I8wzyJ817cPxSY7iN4OIBeaV1nC37xtPnASbj+oZ5NLeb1HqI//5+fs6gFbaPijpAZ46yaLPQAAAAAABwHy1vhx2Mj3HzZcaKOYHQ19WUUGKKAhD47Xxj7nXAYWMb/jtUrm53Kco8jcQKGOw5CiyMQJc7X6gwg2S1TmwKaTpzDpesHO7lcVvAsH+3YfyveWwQBYsXa0my6pcOqcXn8Rf4Kf2EQmOMQjWZZMBK2hkg5udxegyQ8WlA3VmNmfKnBxeY0CmtEPQP0CqhcSe7cmWJoSdAVE3nHJ01oAuQQLtnGVD6rp4geNm8VG0RQYAp6gQPXmL72AD3UbOVmVKIuXA/MwBYN1Ajx8A3I+6rTO6UAU37YEzbIteV9vMjtGnUi/zx9+Mdl5M7BZ0dAF7S030TqwRQJU4jApU47FQLVaQm3NoVrUZcBQVW2v7EAv6zGlXmK+qMM+xilwmP5M4CmsjTbVBCHxyrHg8wmNtE9MVzWqNHg/DY+Tpdkq6HytAqpUEbvIrvEqAvAiWEu3taif9dgvIKXGlQiCcaeLNVSuYRCMCGEYAFOWISVQ6H4/gNovtfylzrrE40jdS2B5JerORovaZyO1onTFtJYHyxtRYorAhcaVkhM7ClL1WiZoa/mtS8dt7vR+2dMY5d/1KDQaqiODHXiS23CagH12wrGd25xfQj5bXs7okRior0syUY6QvIfXmR9/VJpsxtoJdi8pTI1POTolRs8iXKhBYPi9ZdKtOoXUqRgfdzZvb4atIPvZwF9yotfzX0v1ODaNzgzz+5VyIDrVfsmdLhltZUv8tt7u8tGXOGwAq4gTaVhy8RTF1SUZSN0xEvYCh0ocAKHS3Ev2PwI8iPJocdKwl5X3YtkFTYfTDxb9wCujO1gYsjs2vbyK6XyZ0w3Mudmp0LVc1rUhgV7+1lH+XwF36WPBRSRG+xofXvRJeBpyYzzf8OFNyhli+wCIBWQCABWRaiSnhs4BwISozMJOHTOgpmiYgefATp6+TNdtcAPUGyXQwo9nIixAO9Q3byoRFMBvvmrgney2QK1T3RNjTShn916t0ugidRnE9Ol/5DMUk49wJZAln1FXFfeiePgyroMBQGFvz+DKNiHl3u95nwUCwgy1vUZ7wK91k4zF0KQqzzOcv/MNtnOk50UjNoEpHkqlerAp6cg6UDiupz62WutQdglut5K0mxcL5FNkdQwwzm/PqelcUJchHT3iC03zaeKjnNPr+6UFvow7zL3uAkdwdMRezAPUP7anG2cx+QDn502RSIwmoGYgOVYzN/yZZcC/AkoxFbpcmpFGEeHMqZ8svIPrQmg+qvou092HHT6xRQlTXDGpMn8h+R+QR0E8pctT2TYAmacPOvioKdpbfVfVmEg1ZqU9GT5Ri0mEz1KsSR+0ZUuXahTFkw+HAjnufQ85Kj7VzR/UzUNNZptAk/pY2lXGHuJ6Eq26hzi4/X+vjfbgkMWD9EjCbQubRbyp6j91U5L8NRIIOktoQk+YkCau+luN1L30VD7Qgv0G2dBBkVIS0ppB3RsG3SSwH6CkvOQWHgX1VIVosKYTOuTi9EsIQzLII6qbOwpqgZaEH4yFqk3hG1FVgq9WgRbWqIrJsUowmZDurUX2wzO19ZDvuLRN5RizTR8u5jkhYGv9dy/1t19N3mwmrgLU5z6ETYSqouzmAH1pBz8dJuQMRhyXHUQGag9sifT5QaeU9Cg7lMBNfjH1rn3+AS54Jc05Vl+VRe+GXnJ7iBNKzlP/XU9pHgv5Uxqw944Veg93zSLrUF/D50FmWBXxPui0GN4MEb2FC4HJregOtuz36VMWPjlZGP6FXgElU0vN7BsL1lLx1Jqpt8ebzYzCiS4Wf69nOvyGNB6VU9FXMt2CliP/oMPzS94XpZZTM8ntPPHKcd9xxxDEzSmZXRifC+08QuCu1bfbV0uVWlgDbr+g29DflTLXX/au1TIHVGk07rSgcDfKvKsAV2opBKtLV8fDGSK73c+XW72jZUNoIBj7PwtUgDbTfX8iBhhX44kT7ly0XNbu61RBiNtWW5VOG8VkjKLz1COHPx1EpZPFBwJMTl5jd2jk0ZBwFjB8kfVlEITJO1NMM9iyLhqwEd2pEqUa22U+TbYRHgLeCdA5T2zQ7R7SGW40ZgwmT1uWDrpMfSAQuloLtDW0C9Nv0LkI9H5AV60BjpD525wIHpK8JKnA7qGtd7YHBiVRKf2LhP3sIs8zXoMmq2+ViF25/z0xmg6qVppPbO/VsMGm6uv0bwVddqfTPE1WDJ7lRewaJHONQLDpu5bh5e6fj9sA4eGwW5SdVcJEqZtNIQqEYic9+bTUzoelXm7NK3ODBlZfKBJHp0fYN+/mjNl1EFsKFqhIItDwzzFqpG+6imhVYCSDIALBKk1WIQncTBnqbFqZ3VDLNLdNVtxUj+ZJtLPoL+MPj5c51VATRVXQX7rJWptw5Q7LlYQg/KcAiD4p7mhPQ4oFZUzzegDeHfftVMDQ8o9gbaK3Vi6RDVvRSa+t1qG+vO8pq8NNJFCj4PfWdFvWLVDRrYBhLyEFge8krDC8INmMXplG65Y6EG7CFb/DtGi6yzxi8XEwxxrw6CYgqsmvRXEyAuBTMpp1HIlVz5KCdrzmp8Nwdm8Q9zkBkrLivC4SvJpGwZvSOQhEd6enYu1JlFuLoVL+F/rsIABvS1H/mi19LDsVnER74dyKbiB2cmHCk1wJOAA/Pto6DTXtnq9sD8ySZsbsytFgvuNSVCjPH1LYPZuRKe/ZgcLM8MTgZXFo0WsGKdUbmttdxSbPMqcdFxB2ZUYsck/25eFeZTAf/nHOdrjwIklekC/nWMdXF5mCN3GV8op2BtfrqtN45FQr5yBwz3e2Az24txFxi8Ypvj6YHw/kV3AXeC/B7ier9K81K0CjVn5wrYziJbKCAIx8DHJDw8g38MiQoKiOIWmI3j34wMXnIG+j5jvSwNlmiXPdv7vAY9BzHDZXBz+nuMuPe4PD7LNyG61FDZJ+E/Q545urGwSpR7AQnrarbVj5L31VXmtwyXXhRP4rxb4bRFQd0jOZSJVFFd//FNYxCeJDA4D+o77qZVkow8+idIac7Y72WivPvVnROVbSIvkXEqJvlDtcsi3baZKTo+mbbJndl8v5Qw+TxNqT5+Lt/GPYjnNThrSe5aqlkAiuxQGzw+DMy6lAmKBhOXPtjmxrAPsXVtZcbfDTcVPQJ1iRxQedDTly+t0/IBt8/DHqmYzLtKOAoY0s3Opdi3S3NYOyO5vmxh1gSjxwZvFf59isiLhiNHBjLHJtmIKWYE6Zu2VfYgWmDEW+gIRfutpy1PhzxNloQ3J/jhdQ+Lju1zpWHFLlunBcLajSewPPZbxhqBUzR4nUa1Ke3/uGG0Ozm5vf3R3p9uzfF/+tafg31Rsuv+LDXCoVEwaqajGq5Vjm3jvg0QItdPij5N41Eoilzo6E+FdqCdcQ4FwV9O8rvV8AbhbZJVTd6n4qrPNNw+MBsKG8I+1k8rJcJ1GypFWcgGujKaVlv/fPy1jvnE4DSdjhGjHjHqiJOV/0HhgudBPedmHxlXxbzIn3c0GCLXIwCoehQ0YepWcj3jiWKhfAhgpTpPPns++/o27ukPJHbYRCfgPPG+aBmIm0R9w9d7wAAADAJtyRNOJVVAK8/fIxFlvprHmQAAA">
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">11 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">22 / 25</span></div>
 </section>
 
 <!-- ================= 12 · try3 sample ================= -->
@@ -668,7 +959,7 @@ code.mono {
   <div class="card" style="flex:1; display:flex; align-items:center; justify-content:center; padding:12px 14px;">
     <img alt="Try3 拟合样例截图" style="width:100%; max-height:535px; object-fit:contain; border-radius:8px;" src="data:image/webp;base64,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"">
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">12 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">23 / 25</span></div>
 </section>
 
 <!-- ================= 13 · summary ================= -->
@@ -707,7 +998,7 @@ code.mono {
       对每个候选电路均采用统一评价流程：注入 1 A 测试电流 → 解 \(Yv=b\) → 得到 \(Z=V_1\) → 与测量数据比较。
     </div>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">13 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">24 / 25</span></div>
 </section>
 
 <!-- ================= 14 · references ================= -->
@@ -727,9 +1018,9 @@ code.mono {
       <li id="ref-7">S. Chaiken, “A Combinatorial Proof of the All Minors Matrix Tree Theorem,” <em>SIAM J. Algebraic Discrete Methods</em>, 3(3), 319–329, 1982. <a href="https://doi.org/10.1137/0603033">doi:10.1137/0603033</a></li>
       <li id="ref-8">H. Whitney, “2-Isomorphic Graphs,” <em>American Journal of Mathematics</em>, 55(1), 245–254, 1933. <a href="https://doi.org/10.2307/2371127">doi:10.2307/2371127</a></li>
       <li id="ref-9">B. Gustavsen, A. Semlyen, “Rational approximation of frequency domain responses by vector fitting,” <em>IEEE Trans. Power Delivery</em>, 14(3), 1052–1061, 1999. <a href="https://doi.org/10.1109/61.772353">doi:10.1109/61.772353</a></li>
-    </ol>
-    <ol class="references" start="10">
       <li id="ref-10">D. W. Marquardt, “An Algorithm for Least-Squares Estimation of Nonlinear Parameters,” <em>J. Society for Industrial and Applied Mathematics</em>, 11(2), 431–441, 1963. <a href="https://doi.org/10.1137/0111030">doi:10.1137/0111030</a></li>
+    </ol>
+    <ol class="references" start="11">
       <li id="ref-11">T. J. Rothenberg, “Identification in Parametric Models,” <em>Econometrica</em>, 39(3), 577–591, 1971. <a href="https://doi.org/10.2307/1913267">doi:10.2307/1913267</a></li>
       <li id="ref-12">L. Ljung, T. Glad, “On global identifiability for arbitrary model parametrizations,” <em>Automatica</em>, 30(2), 265–276, 1994. <a href="https://doi.org/10.1016/0005-1098(94)90029-9">doi:10.1016/0005-1098(94)90029-9</a></li>
       <li id="ref-13">H. Akaike, “A new look at the statistical model identification,” <em>IEEE Trans. Automatic Control</em>, 19(6), 716–723, 1974. <a href="https://doi.org/10.1109/TAC.1974.1100705">doi:10.1109/TAC.1974.1100705</a></li>
@@ -739,9 +1030,10 @@ code.mono {
       <li id="ref-17">Keysight Technologies, “1-Port Calibration (reflection test)” and “Measurement Errors”: one-port OSL calibration corrects directivity, source match, and reflection tracking errors. Manufacturer technical documentation.</li>
       <li id="ref-18">R. J. Duffin, “Topology of Series-Parallel Networks,” <em>Journal of Mathematical Analysis and Applications</em>, 10(2), 303–318, 1965. <a href="https://doi.org/10.1016/0022-247X(65)90125-3">doi:10.1016/0022-247X(65)90125-3</a></li>
       <li id="ref-19">X. He, Y. Yesha, “Parallel recognition and decomposition of two terminal series parallel graphs,” <em>Information and Computation</em>, 75(1), 15–38, 1987. <a href="https://doi.org/10.1016/0890-5401(87)90061-7">doi:10.1016/0890-5401(87)90061-7</a></li>
+      <li id="ref-20">bitluni (b.luni laboratories), <em>ESP32-S3-VGA</em>: open-source C++/Arduino library generating VGA video on ESP32-S3 via the LCD_CAM peripheral and parallel GPIO output into an external resistor-ladder DAC — the signal-generation technique adapted by this project for sine-wave synthesis. GitHub repository. <a href="https://github.com/bitluni/ESP32-S3-VGA">github.com/bitluni/ESP32-S3-VGA</a></li>
     </ol>
   </div>
-  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">14 / 14</span></div>
+  <div class="footer"><span>LCR Analyzer · Try1–Try3 算法理论</span><span class="pageno">25 / 25</span></div>
 </section>
 
 </body>
