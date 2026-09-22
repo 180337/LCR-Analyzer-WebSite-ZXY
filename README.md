@@ -1038,7 +1038,6 @@ conda run -n lcr python -m app.services.simulator \
 
 同一套仓库现在同时发布两个 GitHub Pages 入口：
 
-- 算法理论展示：<https://invincible-summer.github.io/LCR-Analyzer-WebSite/>
 - 完整静态前端：<https://invincible-summer.github.io/LCR-Analyzer-WebSite/app/>
 
 静态前端由 `.github/workflows/pages-show.yml` 在 GitHub Actions 中执行 `pnpm build` 后发布，构建时使用项目站点基路径
